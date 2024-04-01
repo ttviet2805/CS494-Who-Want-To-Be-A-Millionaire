@@ -38,9 +38,9 @@ class Menu:
 
 		# Register Button
 		self.registerButton = ButtonClass.Button(
-			(self.screenWidth // 4, self.screenHeight // 10), 
+			(self.screenWidth // 4, self.screenHeight // 8), 
 			Const.REGISTER_BUTTON, 
-			(0, self.screenHeight // 2, self.screenWidth, self.screenHeight // 10)
+			(0, self.screenHeight // 2, self.screenWidth, self.screenHeight // 8)
 		)	
 
 	def run(self):
@@ -54,6 +54,10 @@ class Menu:
 			# Check if the register button is clicked
 			if self.registerButton.isClicked(self.gameScreen):
 				print("Register Button Clicked")
+
+			if self.enterUserNameButton.isClicked(self.gameScreen):
+				pass
+
 
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
