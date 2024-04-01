@@ -25,4 +25,4 @@ class ClientSocket:
         print("Connection to server closed")
 
 clientSocket = ClientSocket()
-clientSocket.runClient("localhost", 2828)
+clientSocket.runClient("192.168.1.77", 2828)
