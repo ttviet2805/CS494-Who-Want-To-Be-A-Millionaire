@@ -3,6 +3,8 @@ import pygame
 import TextClass
 import ButtonClass
 import TextButtonClass
+import InGameClass
+
 
 class Menu:
 	def __init__(self, screenSize):
@@ -33,7 +35,8 @@ class Menu:
 		self.enterUserNameButton = TextButtonClass.TextButton(
 			(self.screenWidth // 2, self.screenHeight // 10), 
 			Const.TEXT_BOX, 
-			(0, self.screenHeight // 3, self.screenWidth, self.screenHeight // 10)
+			(0, self.screenHeight // 3, self.screenWidth, self.screenHeight // 10),
+			""
 		)
 
 		# Register Button
@@ -53,16 +56,18 @@ class Menu:
 
 			# Check if the register button is clicked
 			if self.registerButton.isClicked(self.gameScreen):
-				print("Register Button Clicked")
+				ingame = InGameClass.InGame((self.screenWidth, self.screenHeight))
+				ingame.run()
+				break
 
 			if self.enterUserNameButton.isClicked(self.gameScreen):
 				pass
 
-
+                
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
 			self.enterUserNameText.draw(self.gameScreen)
-			self.enterUserNameButton.draw(self.gameScreen)
+			self.enterUserNameButton.drawMenu(self.gameScreen)
 			self.registerButton.draw(self.gameScreen)
 			pygame.display.update()
 			

@@ -26,11 +26,16 @@ TEXT_BOX = [
 ]
 
 # Ingame
-ANSWER_BUTTON_HOVER = pygame.image.load('Assets/Images/InGame/answerButtonHover.png')
-ANSWER_BUTTON_NOT_HOVER = pygame.image.load('Assets/Images/InGame/answerButtonNotHover.png')
-NEXT_BUTTON_HOVER = pygame.image.load('Assets/Images/InGame/nextButtonHover.png')
-NEXT_BUTTON_NOT_HOVER = pygame.image.load('Assets/Images/InGame/nextButtonNotHover.png')
-NEXT_BUTTON_INVALID = pygame.image.load('Assets/Images/InGame/nextButtonInvalid.png')
+ANSWER_BUTTON = [
+    pygame.image.load('Assets/Images/InGame/answerButtonNotHover.png'),
+    pygame.image.load('Assets/Images/InGame/answerButtonHover.png')
+]
+NEXT_BUTTON = [
+    pygame.image.load('Assets/Images/InGame/nextButtonHover.png'),
+    pygame.image.load('Assets/Images/InGame/nextButtonNotHover.png'),
+    pygame.image.load('Assets/Images/InGame/nextButtonInvalid.png')
+]
+
 
 
 
