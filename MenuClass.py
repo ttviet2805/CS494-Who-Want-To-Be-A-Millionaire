@@ -45,6 +45,23 @@ class Menu:
 			Const.REGISTER_BUTTON, 
 			(0, self.screenHeight // 2, self.screenWidth, self.screenHeight // 8)
 		)	
+		
+		# Announcement
+		self.registeredState = 0 # 0: Not Registered, 1: Registered, 2: Existing UserName
+		self.announceRegisterFail = TextClass.Text(
+			Const.FONT, 
+			Const.RED, 
+			self.screenHeight // 20, 
+			"Existing UserName", 
+			(0, 3 * self.screenHeight // 4, self.screenWidth, self.screenHeight // 20)
+		)
+		self.announceRegisterSuccess = TextClass.Text(
+			Const.FONT, 
+			Const.RED, 
+			self.screenHeight // 20, 
+			"Registered Successfully", 
+			(0, 3 * self.screenHeight // 4, self.screenWidth, self.screenHeight // 20)
+		)
 
 	def run(self):
 		while self.running:
@@ -56,6 +73,11 @@ class Menu:
 
 			# Check if the register button is clicked
 			if self.registerButton.isClicked(self.gameScreen):
+				self.registeredState = 1
+				self.announceRegisterSuccess.draw(self.gameScreen)
+
+				pygame.display.update()
+				pygame.time.delay(2000)
 				ingame = InGameClass.InGame((self.screenWidth, self.screenHeight))
 				ingame.run()
 				break
@@ -63,7 +85,7 @@ class Menu:
 			if self.enterUserNameButton.isClicked(self.gameScreen):
 				pass
 
-                
+				
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
 			self.enterUserNameText.draw(self.gameScreen)
