@@ -4,7 +4,7 @@ import TextClass
 import ButtonClass
 import TextButtonClass
 import InGameClass
-
+import protocol
 
 class Menu:
 	def __init__(self, screenSize):
@@ -48,49 +48,44 @@ class Menu:
 		
 		# Announcement
 		self.registeredState = 0 # 0: Not Registered, 1: Registered, 2: Existing UserName
-		self.announceRegisterFail = TextClass.Text(
+		self.announceRegister = TextClass.Text(
 			Const.FONT, 
 			Const.RED, 
 			self.screenHeight // 20, 
-			"Existing UserName", 
-			(0, 3 * self.screenHeight // 4, self.screenWidth, self.screenHeight // 20)
-		)
-		self.announceRegisterSuccess = TextClass.Text(
-			Const.FONT, 
-			Const.RED, 
-			self.screenHeight // 20, 
-			"Registered Successfully", 
+			"", 
 			(0, 3 * self.screenHeight // 4, self.screenWidth, self.screenHeight // 20)
 		)
 
-	def run(self):
+	def run(self, clientSocket):
 		while self.running:
-
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					self.running = False
-					exit(0)
+					break
 
 			# Check if the register button is clicked
 			if self.registerButton.isClicked(self.gameScreen):
-				self.registeredState = 1
-				self.announceRegisterSuccess.draw(self.gameScreen)
-
-				pygame.display.update()
-				pygame.time.delay(2000)
-				ingame = InGameClass.InGame((self.screenWidth, self.screenHeight))
-				ingame.run()
-				break
+				clientSocket.sendRequestForName("REQUEST", protocol.REG_NICKNAME_TYPE, self.enterUserNameButton.getText())
+				responseState = clientSocket.receiveRequestForName()
+				if responseState == True:
+					self.announceRegister.changeTextContent(protocol.REG_COMPLETE_RESPONSE)
+					pygame.display.update()
+					pygame.time.delay(2000)
+					inGame = InGameClass.InGame((self.screenWidth, self.screenHeight))
+					inGame.run()
+					break
+				elif responseState == False:
+					self.announceRegister.changeTextContent(protocol.REG_EXIST_RESPONSE)
 
 			if self.enterUserNameButton.isClicked(self.gameScreen):
 				pass
-
 				
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
 			self.enterUserNameText.draw(self.gameScreen)
 			self.enterUserNameButton.drawMenu(self.gameScreen)
 			self.registerButton.draw(self.gameScreen)
+			self.announceRegister.draw(self.gameScreen)
 			pygame.display.update()
 			
 				

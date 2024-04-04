@@ -122,7 +122,7 @@ class InGame:
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					self.running = False
-					exit(0)
+					break
 
 			# Check if the answer buttons are clicked
 			for i in range(4):

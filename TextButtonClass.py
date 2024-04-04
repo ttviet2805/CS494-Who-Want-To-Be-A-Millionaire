@@ -18,7 +18,7 @@ class TextButton:
 			self.inputStr, 
 			(containerInfo[0], containerInfo[1], containerInfo[2], containerInfo[3])
 		)
-		print(inputStr, containerInfo[0], containerInfo[1], containerInfo[2], containerInfo[3])
+		# print(inputStr, containerInfo[0], containerInfo[1], containerInfo[2], containerInfo[3])
 		self.clicked = False
 
 
@@ -69,6 +69,9 @@ class TextButton:
 				)
 			)
 
+	def getText(self):
+		return self.inputStr
+
 	def drawMenu(self, gameScreen):
 		gameScreen.blit(self.image[self.imageID], (self.rect.x , self.rect.y))
 		self.text.draw(gameScreen)
@@ -115,7 +118,7 @@ class TextButton:
 				self.imageID = 1 - self.imageID 
 				self.handle_event(gameScreen)
 				self.imageID = 1 - self.imageID
-				print(self.inputStr)
+				# print(self.inputStr)
 		if(pygame.mouse.get_pressed()[0] == 0): 
 			self.clicked = False 
 		return action 
