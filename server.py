@@ -1,11 +1,20 @@
 import socket
 import json
 import protocol
+import database
+import random
 
 class ServerSocket:
     def __init__(self):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.nickNames = []
+
+        # In game
+        self.questions = database.questions
+        random.shuffle(self.questions)
+        self.currentOrder = 0
+        self.numsQuestions = len(self.questions)
+        self.curQuestion = -1
     
     def runServer(self, serverIP, port):
         self.server.bind((serverIP, port))
@@ -26,6 +35,7 @@ class ServerSocket:
             # response = f"accepted {request}".encode()
             # clientSocket.send(response)
             self.receiveRequestForName(clientSocket, request)
+            self.receiveRequestForQuestion(clientSocket, request)
 
         clientSocket.close()
         print("Connection to client closed")
@@ -61,6 +71,31 @@ class ServerSocket:
             if i == curStr:
                 return False
         return True
+    
+    def receiveRequestForQuestion(self, clientSocket, message):
+        request = json.loads(message)
+        if request.get("type") is None or request.get("protocol") is None:
+            return
+        if request.get("protocol") != "REQUEST" or request["type"] != protocol.QUESTION_TYPE:
+            return
+        print("Server Received: ", request["data"])
+        self.curQuestion += 1
+        questionJson = {
+            "protocol": "RESPONSE",
+            "type": protocol.QUESTION_TYPE,
+            "data": {
+                "nickname": request["data"],
+                "num_players": len(self.nickNames),
+                "current_order": 1,
+                "your_order": 1,
+                "num_questions": self.numsQuestions,
+                "current_question": self.curQuestion,
+                "time": 40,
+                "question": self.questions[self.curQuestion]
+            }
+        }
+        clientSocket.send(json.dumps(questionJson, indent=2).encode())
+
 
 import sys
 

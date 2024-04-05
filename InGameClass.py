@@ -3,9 +3,10 @@ import pygame
 import TextClass
 import ButtonClass
 import TextButtonClass
+import protocol
 
 class InGame:
-	def __init__(self, screenSize):
+	def __init__(self, screenSize, playerName):
 		pygame.init()
 
 		# Menu screen
@@ -20,13 +21,16 @@ class InGame:
 		# Menu Background
 		self.backgroundImage = pygame.transform.scale(Const.BACKGROUND, (self.screenWidth, self.screenHeight))
 
+		# Player's name
+		self.playerName = playerName
+
 		# Numplayers Text
 		self.numsPlayer = 10
 		self.numsPlayerText = TextClass.Text(
 			Const.FONT, 
 			Const.WHITE, 
 			self.screenHeight // 30, 
-			f"Nums Players: {self.numsPlayer}", 
+			f"Number of Players: {self.numsPlayer}", 
 			(self.screenWidth // 60, self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
 		)
 
@@ -56,7 +60,7 @@ class InGame:
 			Const.FONT, 
 			Const.WHITE, 
 			self.screenHeight // 30, 
-			f"Nums Question: {self.numsQuestions}", 
+			f"Number of Question: {self.numsQuestions}", 
 			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
 		)
 
@@ -71,8 +75,8 @@ class InGame:
 		)
 
 		# Question Text
-		self.currentQuestionID = 1
-		self.currentQuestionContent = "What is the capital of Vietnam?"
+		self.currentQuestionID = 0
+		self.currentQuestionContent = ""
 		self.currentQuestionText = TextClass.Text(
 			Const.FONT, 
 			Const.WHITE, 
@@ -83,10 +87,10 @@ class InGame:
 
 		# List Answers Button
 		self.listAnswers = [
-			"Tam Ky Quang Nam Da Nang Nghe An Thanh Pho Ho Chi Minh Ha Noi",
-			"Da Nang Tran Tuan Viet Dang Trung Nghia Nguyen Dinh Tung",
-			"Ho Chi Minh City",
-			"Can Tho"
+			"A",
+			"B",
+			"C",
+			"D"
 		]
 		self.listAnswersButton = []
 		x_position, y_position = 0, 5 * self.screenHeight // 12 
@@ -116,13 +120,31 @@ class InGame:
 			(9 * self.screenWidth // 10 - self.screenWidth // 100, self.screenHeight // 8, self.screenWidth // 10, self.screenHeight // 12)
 		)
 
-	def run(self):
+	def run(self, clientSocket):
 		while self.running:
-
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					self.running = False
 					break
+
+			if self.currentQuestionID == 0:
+				self.currentQuestionID += 1
+				clientSocket.sendRequest("REQUEST", protocol.QUESTION_TYPE, self.playerName)
+				responseData = clientSocket.receiveRequestForQuestion()
+				self.numsPlayer = responseData["num_players"]
+				self.currentOrder = responseData["current_order"]
+				self.numsQuestions = responseData["num_questions"]
+				self.listAnswers = responseData["question"]["answer"]
+				self.numsPlayerText.changeTextContent(f"Number of Players: {self.numsPlayer}")
+				self.currentOrderText.changeTextContent(f"Current Order: {self.currentOrder}")
+				self.numsQuestionsText.changeTextContent(f"Number of Question: {self.numsQuestions}")
+				self.currentQuestionID = responseData["current_question"]
+				self.currentQuestionContent = responseData["question"]["question"]
+				for i in range(len(self.listAnswersButton)):
+					self.listAnswersButton[i].changeTextContent(self.listAnswers[i])
+					print(i, ": ", self.listAnswers[i])
+				self.currentQuestionText.changeTextContent(f"Question {self.currentQuestionID}: {self.currentQuestionContent}")
+				
 
 			# Check if the answer buttons are clicked
 			for i in range(4):

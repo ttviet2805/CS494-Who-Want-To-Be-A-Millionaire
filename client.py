@@ -43,7 +43,7 @@ class ClientSocket:
         self.client.close()
         print("Connection to server closed")
 
-    def sendRequestForName(self, protocol, request_type, data):
+    def sendRequest(self, protocol, request_type, data):
         request = {
             "protocol": protocol,
             "type": request_type,
@@ -55,12 +55,24 @@ class ClientSocket:
         message = self.client.recv(1024)
         message = message.decode()
         response = json.loads(message)
+        print(response)
         if response.get("type") is None or response.get("protocol") is None:
             return None
         if response.get("protocol") != "RESPONSE" or response["type"] != protocol.REG_NICKNAME_TYPE:
             return None
         data = response["data"]
         return (data == protocol.REG_COMPLETE_RESPONSE)
+    
+    def receiveRequestForQuestion(self):
+        message = self.client.recv(1024)
+        message = message.decode()
+        response = json.loads(message)
+        if response.get("type") is None or response.get("protocol") is None:
+            return None
+        if response.get("protocol") != "RESPONSE" or response["type"] != protocol.QUESTION_TYPE:
+            return None
+        data = response["data"]
+        return data
 
 
 # clientSocket = ClientSocket()
