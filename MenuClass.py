@@ -47,7 +47,6 @@ class Menu:
 		)	
 		
 		# Announcement
-		self.registeredState = 0 # 0: Not Registered, 1: Registered, 2: Existing UserName
 		self.announceRegister = TextClass.Text(
 			Const.FONT, 
 			Const.RED, 
@@ -69,6 +68,7 @@ class Menu:
 				responseState = clientSocket.receiveRequestForName()
 				if responseState == True:
 					self.announceRegister.changeTextContent(protocol.REG_COMPLETE_RESPONSE)
+					self.announceRegister.draw(self.gameScreen)
 					pygame.display.update()
 					pygame.time.delay(2000)
 					inGame = InGameClass.InGame((self.screenWidth, self.screenHeight))
