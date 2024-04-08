@@ -10,9 +10,9 @@ class ClientSocket:
         print("Client connect to server")
         self.client.connect((serverIP, port))
 
-    def sendRequest(self, _message):
-        message = _message
-        self.client.send(message.encode())
+    # def sendRequest(self, _message):
+    #     message = _message
+    #     self.client.send(message.encode())
 
     def receiveResponse(self):
         response = self.client.recv(1024)
@@ -67,6 +67,7 @@ class ClientSocket:
         message = self.client.recv(1024)
         message = message.decode()
         response = json.loads(message)
+        print(response)
         if response.get("type") is None or response.get("protocol") is None:
             return None
         if response.get("protocol") != "RESPONSE" or response["type"] != protocol.QUESTION_TYPE:
@@ -74,6 +75,17 @@ class ClientSocket:
         data = response["data"]
         return data
 
+    def receiveRequestForAnswer(self):
+        message = self.client.recv(1024)
+        message = message.decode()
+        response = json.loads(message)
+        print(response)
+        if response.get("type") is None or response.get("protocol") is None:
+            return None
+        if response.get("protocol") != "RESPONSE" or response["type"] != protocol.ANSWER_TYPE:
+            return None
+        data = response["data"]
+        return data
 
 # clientSocket = ClientSocket()
 # clientSocket.runClient("10.124.4.169", 2828)

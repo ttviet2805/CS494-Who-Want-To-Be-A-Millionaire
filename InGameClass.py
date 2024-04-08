@@ -129,27 +129,28 @@ class InGame:
 
 			if self.currentQuestionID == 0:
 				self.currentQuestionID += 1
-				clientSocket.sendRequest("REQUEST", protocol.QUESTION_TYPE, self.playerName)
-				responseData = clientSocket.receiveRequestForQuestion()
-				self.numsPlayer = responseData["num_players"]
-				self.currentOrder = responseData["current_order"]
-				self.numsQuestions = responseData["num_questions"]
-				self.listAnswers = responseData["question"]["answer"]
-				self.numsPlayerText.changeTextContent(f"Number of Players: {self.numsPlayer}")
-				self.currentOrderText.changeTextContent(f"Current Order: {self.currentOrder}")
-				self.numsQuestionsText.changeTextContent(f"Number of Question: {self.numsQuestions}")
-				self.currentQuestionID = responseData["current_question"]
-				self.currentQuestionContent = responseData["question"]["question"]
-				for i in range(len(self.listAnswersButton)):
-					self.listAnswersButton[i].changeTextContent(self.listAnswers[i])
-					print(i, ": ", self.listAnswers[i])
-				self.currentQuestionText.changeTextContent(f"Question {self.currentQuestionID}: {self.currentQuestionContent}")
-				
+				self.updateQuestion(clientSocket)
 
 			# Check if the answer buttons are clicked
 			for i in range(4):
 				if self.listAnswersButton[i].isClickedInGame(self.gameScreen):
+					answerData = {
+						"nickname": self.playerName,
+						"answer": i
+					}
+					clientSocket.sendRequest("REQUEST", protocol.ANSWER_TYPE, answerData)
+					responseData = clientSocket.receiveRequestForAnswer()
+					if responseData == True:
+						print("True Answer")
+					else:
+						print("False Answer")
 					print(f"Answer {self.listAnswers[i]} is clicked")
+					pygame.display.update()
+					pygame.time.delay(2000)
+					self.currentQuestionID += 1
+					self.updateQuestion(clientSocket)
+
+
 
 			# Check if the next button is clicked
 			nextButtonClick = self.nextButton.isClicked(self.gameScreen)
@@ -171,5 +172,26 @@ class InGame:
 			self.nextButton.draw(self.gameScreen)
 
 			pygame.display.update()
-			
+
+	def updateQuestion(self, clientSocket):
+		clientSocket.sendRequest("REQUEST", protocol.QUESTION_TYPE, self.playerName)
+		responseData = clientSocket.receiveRequestForQuestion()
+
+		self.numsPlayer = responseData["num_players"]
+		self.currentOrder = responseData["current_order"]
+		self.myOrder = responseData["your_order"]
+		self.numsQuestions = responseData["num_questions"]
+		self.remainTime = responseData["time"]
+		self.currentQuestionID = responseData["current_question"]
+		self.currentQuestionContent = responseData["question"]["question"]
+		self.listAnswers = responseData["question"]["answer"]
+
+		self.numsPlayerText.changeTextContent(f"Number of Players: {self.numsPlayer}")
+		self.currentOrderText.changeTextContent(f"Current Order: {self.currentOrder}")
+		self.myOrderText.changeTextContent(f"Your order: {self.myOrder}")
+		self.numsQuestionsText.changeTextContent(f"Number of Question: {self.numsQuestions}")
+		self.remainTimeText.changeTextContent(f"Time: {self.remainTime}")
+		self.currentQuestionText.changeTextContent(f"Question {self.currentQuestionID}: {self.currentQuestionContent}")
+		for i in range(len(self.listAnswersButton)):
+			self.listAnswersButton[i].changeTextContent(self.listAnswers[i])
 				

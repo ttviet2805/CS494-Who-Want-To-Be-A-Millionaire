@@ -2,12 +2,13 @@ import MenuClass
 import pygame
 import sys
 import client
+import protocol
 
 def main():
     for arg in sys.argv[1:]:
         print("Argument:", arg)
     
-    serverIP = "192.168.1.123"
+    serverIP = "192.168.1.4"
     port = 2828
     if(len(sys.argv) >= 2):
         serverIP = sys.argv[1]
@@ -24,7 +25,7 @@ def main():
 
     menuGame = MenuClass.Menu((infoObject.current_w * screenProportion, infoObject.current_h * screenProportion))
     menuGame.run(clientSocket)
-    clientSocket.sendRequest("close")
+    clientSocket.sendRequest("REQUEST", protocol.CLOSE_TYPE, "")
     clientSocket.closeConnection()
 
 if __name__ == "__main__":

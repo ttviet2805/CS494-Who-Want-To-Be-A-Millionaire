@@ -27,19 +27,27 @@ class ServerSocket:
         while True:
             request = clientSocket.recv(1024).decode()
 
-            if request.lower() == "close":
-                clientSocket.send("closed".encode())
-                break
-
             # print(f"Received: {request}")
             # response = f"accepted {request}".encode()
             # clientSocket.send(response)
+            if self.receiveRequestForClose(clientSocket, request) == True:
+                break
+
             self.receiveRequestForName(clientSocket, request)
             self.receiveRequestForQuestion(clientSocket, request)
+            self.receiveRequestForAnswer(clientSocket, request)
 
         clientSocket.close()
         print("Connection to client closed")
         self.server.close()
+
+    def receiveRequestForClose(self, clientSocket, message):
+        request = json.loads(message)
+        if request.get("type") is None or request.get("protocol") is None:
+            return False
+        if request.get("protocol") != "REQUEST" or request["type"] != protocol.CLOSE_TYPE:
+            return False
+        return True
 
     def receiveRequestForName(self, clientSocket, message):
         request = json.loads(message)
@@ -67,6 +75,11 @@ class ServerSocket:
     def checkNickName(self, curStr):
         if len(curStr) == 0 or len(curStr) > 10:
             return False
+        for i in curStr:
+            if i.isdigit() or i.isalpha():
+                pass
+            else:
+                return False
         for i in self.nickNames:
             if i == curStr:
                 return False
@@ -89,12 +102,26 @@ class ServerSocket:
                 "current_order": 1,
                 "your_order": 1,
                 "num_questions": self.numsQuestions,
-                "current_question": self.curQuestion,
                 "time": 40,
+                "current_question": self.curQuestion,
                 "question": self.questions[self.curQuestion]
             }
         }
         clientSocket.send(json.dumps(questionJson, indent=2).encode())
+    
+    def receiveRequestForAnswer(self, clientSocket, message):
+        request = json.loads(message)
+        if request.get("type") is None or request.get("protocol") is None:
+            return
+        if request.get("protocol") != "REQUEST" or request["type"] != protocol.ANSWER_TYPE:
+            return
+        print("Server Received: ", request["data"])
+        answerJson = {
+            "protocol": "RESPONSE", 
+            "type": protocol.ANSWER_TYPE,
+            "data": (request["data"]["answer"] == self.questions[self.curQuestion]["correct_answer"])
+        }
+        clientSocket.send(json.dumps(answerJson, indent=2).encode())
 
 
 import sys
@@ -103,7 +130,7 @@ def main():
     for arg in sys.argv[1:]:
         print("Argument:", arg)
     
-    serverIP = "192.168.1.123"
+    serverIP = "192.168.1.4"
     port = 2828
     print(serverIP, port)
     if(len(sys.argv) >= 2):
