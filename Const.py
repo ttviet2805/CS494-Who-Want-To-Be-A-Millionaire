@@ -49,5 +49,10 @@ NAME_BUTTON = [
     pygame.image.load('Assets/Images/Waitroom/nameButton.png')
 ]
 
+# EndRoom
+HOME_BUTTON = [
+    pygame.image.load('Assets/Images/EndRoom/homeButtonNotHover.png'),
+    pygame.image.load('Assets/Images/EndRoom/homeButtonHover.png'),
+]
 
 

@@ -1,4 +1,5 @@
 import MenuClass
+import EndRoom
 import pygame
 import sys
 import client
@@ -23,8 +24,11 @@ def main():
     infoObject = pygame.display.Info()
     screenProportion = 3 / 4
 
-    menuGame = MenuClass.Menu((infoObject.current_w * screenProportion, infoObject.current_h * screenProportion))
-    menuGame.run(clientSocket)
+    # menuGame = MenuClass.Menu((infoObject.current_w * screenProportion, infoObject.current_h * screenProportion))
+    # menuGame.run(clientSocket)
+
+    endRoom = EndRoom.EndRoom((infoObject.current_w * screenProportion, infoObject.current_h * screenProportion))
+    endRoom.run(clientSocket, "Viet")
     clientSocket.sendRequest("REQUEST", protocol.CLOSE_TYPE, "")
     clientSocket.closeConnection()
 
