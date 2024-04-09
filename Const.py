@@ -26,6 +26,7 @@ TEXT_BOX = [
 ]
 
 # Ingame
+QUESTION_BUTTON = []
 ANSWER_BUTTON = [
     pygame.image.load('Assets/Images/InGame/answerButtonNotHover.png'),
     pygame.image.load('Assets/Images/InGame/answerButtonHover.png'),

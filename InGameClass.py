@@ -77,13 +77,19 @@ class InGame:
 		# Question Text
 		self.currentQuestionID = 0
 		self.currentQuestionContent = ""
-		self.currentQuestionText = TextClass.Text(
-			Const.FONT, 
-			Const.WHITE, 
-			self.screenHeight // 20, 
-			f"Question {self.currentQuestionID} : {self.currentQuestionContent}", 
-			(0, self.screenHeight // 6, self.screenWidth, self.screenHeight // 30)
-		)
+		# self.currentQuestionText = TextClass.Text(
+		# 	Const.FONT, 
+		# 	Const.WHITE, 
+		# 	self.screenHeight // 20, 
+		# 	f"Question {self.currentQuestionID} : {self.currentQuestionContent}", 
+		# 	(0, self.screenHeight // 6, self.screenWidth, self.screenHeight // 30)
+		# )
+		self.currentQuestionText = TextButtonClass.TextButton(
+			(self.screenWidth // 2, self.screenHeight // 5), 
+            Const.QUESTION_BUTTON, 
+            (0, self.screenHeight // 6, self.screenWidth, self.screenHeight // 5),
+            f"Question {self.currentQuestionID} : {self.currentQuestionContent}", 
+        )
 
 		# List Answers Button
 		self.listAnswers = [
@@ -162,7 +168,7 @@ class InGame:
 			self.myOrderText.drawLeftToRight(self.gameScreen)
 			self.numsQuestionsText.drawRightToLeft(self.gameScreen)
 			self.remainTimeText.drawRightToLeft(self.gameScreen)
-			self.currentQuestionText.draw(self.gameScreen)
+			self.currentQuestionText.drawInGame(self.gameScreen)
 			for i in range(4):
 				self.listAnswersButton[i].drawInGame(self.gameScreen)
 			self.nextButton.draw(self.gameScreen)

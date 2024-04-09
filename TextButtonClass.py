@@ -80,7 +80,8 @@ class TextButton:
 		self.text.draw(gameScreen)
 
 	def drawInGame(self, gameScreen):
-		gameScreen.blit(self.image[self.imageID], (self.rect.x , self.rect.y))
+		if (len(self.buttonImage) >= 1):
+			gameScreen.blit(self.image[self.imageID], (self.rect.x , self.rect.y))
 		
 		wrapTextListLen = len(self.wrapTextList)
 		for i in range(wrapTextListLen):
