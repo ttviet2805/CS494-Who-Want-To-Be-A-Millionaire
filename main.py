@@ -8,7 +8,7 @@ def main():
     for arg in sys.argv[1:]:
         print("Argument:", arg)
     
-    serverIP = "192.168.1.4"
+    serverIP = "localhost"
     port = 2828
     if(len(sys.argv) >= 2):
         serverIP = sys.argv[1]

@@ -63,17 +63,13 @@ class Menu:
 					break
 
 			# Check if the register button is clicked
+			isIngame = False
 			if self.registerButton.isClicked(self.gameScreen):
 				clientSocket.sendRequest("REQUEST", protocol.REG_NICKNAME_TYPE, self.enterUserNameButton.getText())
 				responseState = clientSocket.receiveRequestForName()
 				if responseState == True:
 					self.announceRegister.changeTextContent(protocol.REG_COMPLETE_RESPONSE)
-					self.announceRegister.draw(self.gameScreen)
-					pygame.display.update()
-					pygame.time.delay(2000)
-					inGame = InGameClass.InGame((self.screenWidth, self.screenHeight), self.enterUserNameButton.getText())
-					inGame.run(clientSocket)
-					break
+					isIngame = True
 				elif responseState == False:
 					self.announceRegister.changeTextContent(protocol.REG_EXIST_RESPONSE)
 
@@ -87,5 +83,11 @@ class Menu:
 			self.registerButton.draw(self.gameScreen)
 			self.announceRegister.draw(self.gameScreen)
 			pygame.display.update()
+
+			if isIngame:
+				pygame.time.delay(2000)
+				inGame = InGameClass.InGame((self.screenWidth, self.screenHeight), self.enterUserNameButton.getText())
+				inGame.run(clientSocket)
+				break
 			
 				
