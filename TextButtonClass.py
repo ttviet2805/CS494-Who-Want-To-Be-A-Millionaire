@@ -7,9 +7,14 @@ class TextButton:
 		self.size = (buttonSize[0], buttonSize[1])
 		self.imageID = 0
 		self.image = [pygame.transform.scale(buttonImage[i], self.size) for i in range(len(buttonImage))]
-		self.rect = self.image[0].get_rect()
 		self.coord = (containerInfo[0] + (containerInfo[2] - self.size[0]) / 2, containerInfo[1] + (containerInfo[3] - self.size[1]) / 2)
-		self.rect.topleft = self.coord
+		
+		if (len(buttonImage) >= 1):
+			self.rect = self.image[0].get_rect()
+			self.rect.topleft = self.coord
+		else:
+			self.rect = ""
+
 		self.inputStr = inputStr
 		self.text = TextClass.Text(
 			Const.FONT, 
@@ -26,7 +31,7 @@ class TextButton:
 	def wrapText(self, curStr):
 		# Wrap text
 		words = curStr.split()
-		textFont = pygame.font.Font(Const.FONT, self.size[1] // 4)
+		textFont = pygame.font.Font(Const.FONT, self.size[1] // 5)
 		wordWidth, wordHeight = 0, 0
 		currentWidth = 0
 		wrapTextContent = ""
@@ -36,6 +41,7 @@ class TextButton:
 			wordHeight = textFont.size(words[i])[1]
 			if (currentWidth + wordWidth < self.size[0] - self.size[0] / 10):
 				currentWidth += wordWidth
+				wrapTextContent += words[i] + " "
 			else:
 				wrapTextList.append(
 					TextClass.Text(
@@ -48,7 +54,10 @@ class TextButton:
 				)
 				currentWidth = 0
 				wrapTextContent = ""
-			wrapTextContent += words[i] + " "
+				wrapTextContent += words[i] + " "
+				currentWidth += wordWidth
+			
+			#print("So sanh:", textFont.size(wrapTextContent)[0], self.size[0] - self.size[0] / 10)
 		
 		if (wrapTextContent != ""):
 			wrapTextList.append(
@@ -76,11 +85,12 @@ class TextButton:
 		return self.inputStr
 
 	def drawMenu(self, gameScreen):
-		gameScreen.blit(self.image[self.imageID], (self.rect.x , self.rect.y))
+		if (len(self.image) >= 1):
+			gameScreen.blit(self.image[self.imageID], (self.rect.x , self.rect.y))
 		self.text.draw(gameScreen)
 
 	def drawInGame(self, gameScreen):
-		if (len(self.buttonImage) >= 1):
+		if (len(self.image) >= 1):
 			gameScreen.blit(self.image[self.imageID], (self.rect.x , self.rect.y))
 		
 		wrapTextListLen = len(self.wrapTextList)
@@ -116,7 +126,7 @@ class TextButton:
 		action = False
 
 		pos = pygame.mouse.get_pos()
-		if self.rect.collidepoint(pos) :
+		if len(self.image) >= 1 and self.rect.collidepoint(pos) :
 			if(pygame.mouse.get_pressed()[0] == 1  and self.clicked == False):
 				self.clicked = True
 				action = True
@@ -132,7 +142,7 @@ class TextButton:
 		action = False 
 
 		pos = pygame.mouse.get_pos()
-		if self.rect.collidepoint(pos):
+		if len(self.image) >= 1 and self.rect.collidepoint(pos):
 			self.imageID = 1
 			if(pygame.mouse.get_pressed()[0] == 1  and self.clicked == False):
 				self.clicked = True

@@ -48,12 +48,21 @@ class InGame:
 		self.myOrder = 1
 		self.myOrderText = TextClass.Text(
 			Const.FONT, 
-			Const.WHITE, 
+			Const.RED, 
 			self.screenHeight // 30, 
 			f"Your Order: {self.myOrder}", 
 			(self.screenWidth // 60, self.screenHeight // 100 + self.screenHeight // 15, self.screenWidth // 6, self.screenHeight // 30)
 		)
-
+		
+		# Your Name Text
+		self.myNameText = TextClass.Text(
+			Const.FONT, 
+			Const.RED, 
+			self.screenHeight // 25, 
+			f"Your Name: {self.playerName}", 
+			(0, self.screenHeight // 100, self.screenWidth, self.screenHeight // 25)
+		)
+	
 		# Nums Questions Text
 		self.numsQuestions = 20
 		self.numsQuestionsText = TextClass.Text(
@@ -77,19 +86,12 @@ class InGame:
 		# Question Text
 		self.currentQuestionID = 0
 		self.currentQuestionContent = ""
-		# self.currentQuestionText = TextClass.Text(
-		# 	Const.FONT, 
-		# 	Const.WHITE, 
-		# 	self.screenHeight // 20, 
-		# 	f"Question {self.currentQuestionID} : {self.currentQuestionContent}", 
-		# 	(0, self.screenHeight // 6, self.screenWidth, self.screenHeight // 30)
-		# )
 		self.currentQuestionText = TextButtonClass.TextButton(
-			(self.screenWidth // 2, self.screenHeight // 5), 
-            Const.QUESTION_BUTTON, 
-            (0, self.screenHeight // 6, self.screenWidth, self.screenHeight // 5),
-            f"Question {self.currentQuestionID} : {self.currentQuestionContent}", 
-        )
+			(5 * self.screenWidth // 7, self.screenHeight // 5), 
+			Const.QUESTION_BUTTON, 
+			(self.screenWidth // 7, self.screenHeight // 6, 5 * self.screenWidth // 7, self.screenHeight // 5),
+			f"Question {self.currentQuestionID} : {self.currentQuestionContent}", 
+		)
 
 		# List Answers Button
 		self.listAnswers = [
@@ -166,6 +168,7 @@ class InGame:
 			self.numsPlayerText.drawLeftToRight(self.gameScreen)
 			self.currentOrderText.drawLeftToRight(self.gameScreen)
 			self.myOrderText.drawLeftToRight(self.gameScreen)
+			self.myNameText.draw(self.gameScreen)
 			self.numsQuestionsText.drawRightToLeft(self.gameScreen)
 			self.remainTimeText.drawRightToLeft(self.gameScreen)
 			self.currentQuestionText.drawInGame(self.gameScreen)
@@ -194,7 +197,8 @@ class InGame:
 
 		self.numsPlayerText.changeTextContent(f"Number of Players: {self.numsPlayer}")
 		self.currentOrderText.changeTextContent(f"Current Order: {self.currentOrder}")
-		self.myOrderText.changeTextContent(f"Your order: {self.myOrder}")
+		self.myOrderText.changeTextContent(f"Your Order: {self.myOrder}")
+		self.myNameText.changeTextContent(f"Name: {self.playerName}")
 		self.numsQuestionsText.changeTextContent(f"Number of Question: {self.numsQuestions}")
 		self.remainTimeText.changeTextContent(f"Time: {self.remainTime}")
 		self.currentQuestionText.changeTextContent(f"Question {self.currentQuestionID}: {self.currentQuestionContent}")
