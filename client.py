@@ -63,6 +63,18 @@ class ClientSocket:
         data = response["data"]
         return (data == protocol.REG_COMPLETE_RESPONSE)
     
+    def receiveRequestForWaitingRoom(self):
+        message = self.client.recv(1024)
+        message = message.decode()
+        response = json.loads(message)
+        print(response)
+        if response.get("type") is None or response.get("protocol") is None:
+            return None
+        if response.get("protocol") != "RESPONSE" or response["type"] != protocol.WAITING_ROOM_TYPE:
+            return None
+        data = response["data"]
+        return data
+    
     def receiveRequestForQuestion(self):
         message = self.client.recv(1024)
         message = message.decode()

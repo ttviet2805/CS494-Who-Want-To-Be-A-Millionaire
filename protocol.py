@@ -1,5 +1,6 @@
 # REQUEST and RESPONSE TYPE
 REG_NICKNAME_TYPE = "REG_NICKNAME"
+WAITING_ROOM_TYPE = "WAITING_ROOM"
 QUESTION_TYPE = "QUESTION"
 ANSWER_TYPE = "ANSWER"
 CLOSE_TYPE = "CLOSE"
@@ -20,6 +21,13 @@ REG_EXIST_RESPONSE = "Existing or Invalid Name! Try Another Name"
 ## 
 
 # JSON REG NAME RESPONSE
+# {
+#     "protocol": "RESPONSE",
+#     "type": WAITING_ROOM_TYPE,
+#     "data": ['...', '...']
+# }
+
+# JSON WAITING ROOM RESPONSE
 # {
 #     "protocol": "RESPONSE",
 #     "type": "REG_NICKNAME",
