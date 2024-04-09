@@ -28,7 +28,9 @@ TEXT_BOX = [
 # Ingame
 ANSWER_BUTTON = [
     pygame.image.load('Assets/Images/InGame/answerButtonNotHover.png'),
-    pygame.image.load('Assets/Images/InGame/answerButtonHover.png')
+    pygame.image.load('Assets/Images/InGame/answerButtonHover.png'),
+    pygame.image.load('Assets/Images/InGame/correctAnswerButton.png'),
+    pygame.image.load('Assets/Images/InGame/wrongAnswerButton.png'),
 ]
 NEXT_BUTTON = [
     pygame.image.load('Assets/Images/InGame/nextButtonHover.png'),
