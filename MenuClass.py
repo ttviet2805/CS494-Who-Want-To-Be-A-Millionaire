@@ -3,8 +3,7 @@ import pygame
 import TextClass
 import ButtonClass
 import TextButtonClass
-import InGameClass
-# import WaitRoomClass
+import WaitRoomClass
 import protocol
 
 class Menu:
@@ -64,13 +63,13 @@ class Menu:
 					break
 
 			# Check if the register button is clicked
-			isIngame = False
+			isInWaitingRoom = False
 			if self.registerButton.isClicked(self.gameScreen):
 				clientSocket.sendRequest("REQUEST", protocol.REG_NICKNAME_TYPE, self.enterUserNameButton.getText())
 				responseState = clientSocket.receiveRequestForName()
 				if responseState == True:
 					self.announceRegister.changeTextContent(protocol.REG_COMPLETE_RESPONSE)
-					isIngame = True
+					isInWaitingRoom = True
 				elif responseState == False:
 					self.announceRegister.changeTextContent(protocol.REG_EXIST_RESPONSE)
 
@@ -83,14 +82,10 @@ class Menu:
 			self.enterUserNameButton.drawMenu(self.gameScreen)
 			self.registerButton.draw(self.gameScreen)
 			self.announceRegister.draw(self.gameScreen)
-			pygame.display.update()
+			pygame.display.update()			
 
-            # Test WaitingRoom
-			waitRoom = WaitRoomClass.WaitRoom((self.screenWidth, self.screenHeight))
-			waitRoom.run(clientSocket)
-
-			if isIngame:
+			if isInWaitingRoom:
 				pygame.time.delay(2000)
-				inGame = InGameClass.InGame((self.screenWidth, self.screenHeight), self.enterUserNameButton.getText())
-				inGame.run(clientSocket)
+				waitRoom = WaitRoomClass.WaitRoom((self.screenWidth, self.screenHeight))
+				waitRoom.run(clientSocket, self.enterUserNameButton.getText())
 				break

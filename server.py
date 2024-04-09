@@ -34,6 +34,7 @@ class ServerSocket:
                 break
 
             self.receiveRequestForName(clientSocket, request)
+            self.receiveRequestForWaitingRoom(clientSocket, request)
             self.receiveRequestForQuestion(clientSocket, request)
             self.receiveRequestForAnswer(clientSocket, request)
 
@@ -84,6 +85,20 @@ class ServerSocket:
             if i == curStr:
                 return False
         return True
+    
+    def receiveRequestForWaitingRoom(self, clientSocket, message):
+        request = json.loads(message)
+        if request.get("type") is None or request.get("protocol") is None:
+            return
+        if request.get("protocol") != "REQUEST" or request["type"] != protocol.WAITING_ROOM_TYPE:
+            return
+        print("Server Received: ", request["data"])
+        waitingRoomJson = {
+            "protocol": "RESPONSE", 
+            "type": protocol.WAITING_ROOM_TYPE,
+            "data": self.nickNames
+        }
+        clientSocket.send(json.dumps(waitingRoomJson, indent=2).encode())
     
     def receiveRequestForQuestion(self, clientSocket, message):
         request = json.loads(message)

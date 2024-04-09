@@ -33,7 +33,33 @@ class WaitRoom:
 		
 		# List Players
 		self.listPlayersButton = []
-		for i in range(10):
+		# for i in range(10):
+		# 	self.listPlayersButton.append(
+		# 		TextButtonClass.TextButton(
+		# 			(self.screenWidth // 6, self.screenHeight // 8), 
+		# 			Const.NAME_BUTTON, 
+		# 			(
+		# 				(i % 4 + 1) * self.screenWidth // 15 + (i % 4) * self.screenWidth // 6,
+	   	# 				(i // 4 + 1) * self.screenHeight // 6,
+		# 				self.screenWidth // 6,
+		# 				self.screenHeight // 8
+		# 			),
+		# 			"Viet"
+		# 		)
+		# 	)
+
+
+		# Start Button
+		self.startButton = ButtonClass.Button(
+			(self.screenWidth // 4, self.screenHeight // 8), 
+			Const.START_BUTTON, 
+			(0, 4 * self.screenHeight // 5, self.screenWidth, self.screenHeight // 8)
+		)	
+
+	def run(self, clientSocket, playerName):
+		clientSocket.sendRequest("REQUEST", protocol.WAITING_ROOM_TYPE, playerName)
+		responseState = clientSocket.receiveRequestForWaitingRoom()
+		for i in range(len(responseState)):
 			self.listPlayersButton.append(
 				TextButtonClass.TextButton(
 					(self.screenWidth // 6, self.screenHeight // 8), 
@@ -44,19 +70,10 @@ class WaitRoom:
 						self.screenWidth // 6,
 						self.screenHeight // 8
 					),
-					"Viet"
+					responseState[i]
 				)
 			)
 
-
-		# Start Button
-		self.startButton = ButtonClass.Button(
-			(self.screenWidth // 4, self.screenHeight // 8), 
-			Const.START_BUTTON, 
-			(0, 4 * self.screenHeight // 5, self.screenWidth, self.screenHeight // 8)
-		)	
-
-	def run(self, clientSocket):
 		while self.running:
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
@@ -65,12 +82,15 @@ class WaitRoom:
 				
 			# Check if the start button is clicked
 			if self.startButton.isClicked(self.gameScreen):
+				inGame = InGameClass.InGame((self.screenWidth, self.screenHeight), playerName)
+				inGame.run(clientSocket)
 				print("Start Button Clicked")
+				break
 
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
 			self.waitingRoomTitle.draw(self.gameScreen)
 			self.startButton.draw(self.gameScreen)
-			for i in range(10):
+			for i in range(len(self.listPlayersButton)):
 				self.listPlayersButton[i].drawMenu(self.gameScreen)
 			pygame.display.update()
