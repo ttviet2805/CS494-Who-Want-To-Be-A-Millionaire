@@ -4,6 +4,7 @@ import TextClass
 import ButtonClass
 import TextButtonClass
 import InGameClass
+import WaitRoomClass
 import protocol
 
 class Menu:
@@ -83,6 +84,10 @@ class Menu:
 			self.registerButton.draw(self.gameScreen)
 			self.announceRegister.draw(self.gameScreen)
 			pygame.display.update()
+
+            # Test WaitingRoom
+			waitRoom = WaitRoomClass.WaitRoom((self.screenWidth, self.screenHeight))
+			waitRoom.run(clientSocket)
 
 			if isIngame:
 				pygame.time.delay(2000)

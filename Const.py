@@ -37,5 +37,11 @@ NEXT_BUTTON = [
 ]
 
 
+# WaitRoom
+START_BUTTON = [
+    pygame.image.load('Assets/Images/WaitRoom/startButtonNotHover.png'),
+    pygame.image.load('Assets/Images/WaitRoom/startButtonHover.png')
+]
+
 
 
