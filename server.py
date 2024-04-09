@@ -104,7 +104,10 @@ class ServerSocket:
                 "num_questions": self.numsQuestions,
                 "time": 40,
                 "current_question": self.curQuestion,
-                "question": self.questions[self.curQuestion]
+                "question": {
+                    "question": self.questions[self.curQuestion]["question"],
+                    "answer": self.questions[self.curQuestion]["answer"]
+                }
             }
         }
         clientSocket.send(json.dumps(questionJson, indent=2).encode())
