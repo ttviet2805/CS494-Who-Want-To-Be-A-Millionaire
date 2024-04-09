@@ -112,7 +112,7 @@ class TextButton:
 			self.drawMenu(gameScreen)
 							
 	def isClicked(self, gameScreen): 
-		action = False 
+		action = False
 
 		pos = pygame.mouse.get_pos()
 		if self.rect.collidepoint(pos) :
@@ -140,4 +140,10 @@ class TextButton:
 			self.imageID = 0
 		if(pygame.mouse.get_pressed()[0] == 0): 
 			self.clicked = False 
-		return action 
+		return action
+	
+	def setStatus(self, answer):
+		if answer == 'correct':
+			self.imageID = 2
+		if answer == 'wrong':
+			self.imageID = 3

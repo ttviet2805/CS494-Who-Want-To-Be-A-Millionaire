@@ -94,5 +94,3 @@ class Menu:
 				inGame = InGameClass.InGame((self.screenWidth, self.screenHeight), self.enterUserNameButton.getText())
 				inGame.run(clientSocket)
 				break
-			
-				

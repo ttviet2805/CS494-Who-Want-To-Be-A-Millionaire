@@ -132,6 +132,7 @@ class InGame:
 				self.updateQuestion(clientSocket)
 
 			# Check if the answer buttons are clicked
+			isAnswer = False
 			for i in range(4):
 				if self.listAnswersButton[i].isClickedInGame(self.gameScreen):
 					answerData = {
@@ -141,16 +142,11 @@ class InGame:
 					clientSocket.sendRequest("REQUEST", protocol.ANSWER_TYPE, answerData)
 					responseData = clientSocket.receiveRequestForAnswer()
 					if responseData == True:
-						print("True Answer")
+						self.listAnswersButton[i].setStatus('correct')
 					else:
-						print("False Answer")
+						self.listAnswersButton[i].setStatus('wrong')
 					print(f"Answer {self.listAnswers[i]} is clicked")
-					pygame.display.update()
-					pygame.time.delay(2000)
-					self.currentQuestionID += 1
-					self.updateQuestion(clientSocket)
-
-
+					isAnswer = True
 
 			# Check if the next button is clicked
 			nextButtonClick = self.nextButton.isClicked(self.gameScreen)
@@ -170,8 +166,12 @@ class InGame:
 			for i in range(4):
 				self.listAnswersButton[i].drawInGame(self.gameScreen)
 			self.nextButton.draw(self.gameScreen)
-
 			pygame.display.update()
+
+			if isAnswer == True:
+				pygame.time.delay(2000)
+				self.currentQuestionID += 1
+				self.updateQuestion(clientSocket)
 
 	def updateQuestion(self, clientSocket):
 		clientSocket.sendRequest("REQUEST", protocol.QUESTION_TYPE, self.playerName)
