@@ -33,21 +33,6 @@ class WaitRoom:
 		
 		# List Players
 		self.listPlayersButton = []
-		# for i in range(10):
-		# 	self.listPlayersButton.append(
-		# 		TextButtonClass.TextButton(
-		# 			(self.screenWidth // 6, self.screenHeight // 8), 
-		# 			Const.NAME_BUTTON, 
-		# 			(
-		# 				(i % 4 + 1) * self.screenWidth // 15 + (i % 4) * self.screenWidth // 6,
-	   	# 				(i // 4 + 1) * self.screenHeight // 6,
-		# 				self.screenWidth // 6,
-		# 				self.screenHeight // 8
-		# 			),
-		# 			"Viet"
-		# 		)
-		# 	)
-
 
 		# Start Button
 		self.startButton = ButtonClass.Button(
@@ -58,27 +43,34 @@ class WaitRoom:
 
 	def run(self, clientSocket, playerName):
 		clientSocket.sendRequest("REQUEST", protocol.WAITING_ROOM_TYPE, playerName)
-		responseState = clientSocket.receiveRequestForWaitingRoom()
-		for i in range(len(responseState)):
-			self.listPlayersButton.append(
-				TextButtonClass.TextButton(
-					(self.screenWidth // 6, self.screenHeight // 8), 
-					Const.NAME_BUTTON, 
-					(
-						(i % 4 + 1) * self.screenWidth // 15 + (i % 4) * self.screenWidth // 6,
-	   					(i // 4 + 1) * self.screenHeight // 6,
-						self.screenWidth // 6,
-						self.screenHeight // 8
-					),
-					responseState[i]
-				)
-			)
 
 		while self.running:
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					self.running = False
 					break
+
+			clientSocket.isReceiveResponse()
+
+			waitingRoomData = clientSocket.receiveUIResponse(protocol.WAITING_ROOM_TYPE)
+			if waitingRoomData != None:
+				print("OKE IN HERE")
+				print(waitingRoomData)
+				self.listPlayersButton = []
+				for i in range(len(waitingRoomData)):
+					self.listPlayersButton.append(
+						TextButtonClass.TextButton(
+							(self.screenWidth // 6, self.screenHeight // 8), 
+							Const.NAME_BUTTON, 
+							(
+								(i % 4 + 1) * self.screenWidth // 15 + (i % 4) * self.screenWidth // 6,
+								(i // 4 + 1) * self.screenHeight // 6,
+								self.screenWidth // 6,
+								self.screenHeight // 8
+							),
+							waitingRoomData[i]
+						)
+					)
 				
 			# Check if the start button is clicked
 			if self.startButton.isClicked(self.gameScreen):

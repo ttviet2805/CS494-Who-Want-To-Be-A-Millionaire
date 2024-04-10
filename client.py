@@ -1,27 +1,21 @@
 import socket
+import selectors
 import json
 import protocol
 
 class ClientSocket:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.mySel = selectors.DefaultSelector()
+        self.keepRunning = True
 
-    def connectSocket(self, serverIP, port):
+        self.responses = {}
+
+    def clientConnectToServer(self, serverIP, port):
         print("Client connect to server")
         self.client.connect((serverIP, port))
-
-    # def sendRequest(self, _message):
-    #     message = _message
-    #     self.client.send(message.encode())
-
-    def receiveResponse(self):
-        response = self.client.recv(1024)
-        response = response.decode()
-        return response
-    
-    def closeConnection(self):
-        print("Connection to server closed")
-        self.client.close()
+        self.client.setblocking(False)
+        self.mySel.register(self.client, selectors.EVENT_READ,)
 
     def runClient(self, _serverIP, _port):
         serverIP = _serverIP
@@ -43,6 +37,48 @@ class ClientSocket:
         self.client.close()
         print("Connection to server closed")
 
+    def isReceiveResponse(self):
+        for key, mask in self.mySel.select(timeout=0):
+            connection = key.fileobj
+            client_address = connection.getpeername()
+            # print('client({})'.format(client_address))
+            if mask & selectors.EVENT_READ:
+                message = self.client.recv(1024)
+                message = message.decode()
+                response = json.loads(message)
+                self.receiveResponse(response, protocol.REG_NICKNAME_TYPE)
+                self.receiveResponse(response, protocol.WAITING_ROOM_TYPE)
+                self.receiveResponse(response, protocol.QUESTION_TYPE)
+                self.receiveResponse(response, protocol.ANSWER_TYPE)
+                self.receiveResponse(response, protocol.CLOSE_TYPE)
+
+    def runClientForNonBlockingSocket(self):
+        self.mySel.register(self.client, selectors.EVENT_READ,)
+
+        while self.keepRunning:
+            for key, mask in self.mySel.select(timeout=0):
+                connection = key.fileobj
+                client_address = connection.getpeername()
+                print('client({})'.format(client_address))
+                if mask & selectors.EVENT_READ:
+                    message = self.client.recv(1024)
+                    message = message.decode()
+                    response = json.loads(message)
+                    self.receiveResponse(response, protocol.REG_NICKNAME)
+                    self.receiveResponse(response, protocol.WAITING_ROOM)
+                    self.receiveResponse(response, protocol.QUESTION)
+                    self.receiveResponse(response, protocol.ANSWER)
+                    self.receiveResponse(response, protocol.CLOSE)
+        
+        print("Client connect to server closed")
+        self.client.close()
+        self.mySel.close()
+    
+    def closeClient(self):
+        print("Client connect to server closed")
+        self.client.close()
+        self.mySel.close()
+
     def sendRequest(self, protocol, request_type, data):
         request = {
             "protocol": protocol,
@@ -51,53 +87,41 @@ class ClientSocket:
         }
         self.client.sendall(json.dumps(request, indent=2).encode()) 
     
-    def receiveRequestForName(self):
-        message = self.client.recv(1024)
-        message = message.decode()
-        response = json.loads(message)
-        print(response)
+    def receiveResponse(self, response, protocolType):
         if response.get("type") is None or response.get("protocol") is None:
             return None
-        if response.get("protocol") != "RESPONSE" or response["type"] != protocol.REG_NICKNAME_TYPE:
+        if response.get("protocol") != "RESPONSE" or response["type"] != protocolType:
             return None
-        data = response["data"]
-        return (data == protocol.REG_COMPLETE_RESPONSE)
-    
-    def receiveRequestForWaitingRoom(self):
-        message = self.client.recv(1024)
-        message = message.decode()
-        response = json.loads(message)
         print(response)
-        if response.get("type") is None or response.get("protocol") is None:
-            return None
-        if response.get("protocol") != "RESPONSE" or response["type"] != protocol.WAITING_ROOM_TYPE:
-            return None
         data = response["data"]
-        return data
-    
-    def receiveRequestForQuestion(self):
-        message = self.client.recv(1024)
-        message = message.decode()
-        response = json.loads(message)
-        print(response)
-        if response.get("type") is None or response.get("protocol") is None:
-            return None
-        if response.get("protocol") != "RESPONSE" or response["type"] != protocol.QUESTION_TYPE:
-            return None
-        data = response["data"]
-        return data
+        if self.responses.get(protocolType) == None:
+            self.responses[protocolType] = []
+        self.responses[protocolType].append(data)
 
-    def receiveRequestForAnswer(self):
-        message = self.client.recv(1024)
-        message = message.decode()
-        response = json.loads(message)
-        print(response)
-        if response.get("type") is None or response.get("protocol") is None:
+    def receiveUIResponse(self, protocolType):
+        if self.responses.get(protocolType) == None:
             return None
-        if response.get("protocol") != "RESPONSE" or response["type"] != protocol.ANSWER_TYPE:
+        if len(self.responses.get(protocolType)) == 0:
             return None
-        data = response["data"]
-        return data
+        val = self.responses[protocolType].pop(0)
+        return val
+    
+# import sys
 
-# clientSocket = ClientSocket()
-# clientSocket.runClient("10.124.4.169", 2828)
+# def main():
+#     for arg in sys.argv[1:]:
+#         print("Argument:", arg)
+    
+#     serverIP = "localhost"
+#     port = 2828
+#     print(serverIP, port)
+#     if(len(sys.argv) >= 2):
+#         serverIP = sys.argv[1]
+#     if(len(sys.argv) >= 3):
+#         port = int(sys.argv[2])
+    
+#     clientSocket = ClientSocket()
+#     clientSocket.runClientForNonBlockingSocket(serverIP, port)
+
+# if __name__ == "__main__":
+#     main()  

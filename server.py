@@ -1,4 +1,5 @@
 import socket
+import selectors
 import json
 import protocol
 import database
@@ -6,7 +7,12 @@ import random
 
 class ServerSocket:
     def __init__(self):
+        self.mySel = selectors.DefaultSelector()
+        self.numClients = None
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.clients = []
+
+        # Waiting Room
         self.nickNames = []
 
         # In game
@@ -27,9 +33,6 @@ class ServerSocket:
         while True:
             request = clientSocket.recv(1024).decode()
 
-            # print(f"Received: {request}")
-            # response = f"accepted {request}".encode()
-            # clientSocket.send(response)
             if self.receiveRequestForClose(clientSocket, request) == True:
                 break
 
@@ -41,6 +44,50 @@ class ServerSocket:
         clientSocket.close()
         print("Connection to client closed")
         self.server.close()
+
+    def runServerForNonBlockingSocket(self, serverIP, port):
+        self.server.setblocking(False)
+        self.server.bind((serverIP, port))
+        self.server.listen()
+        print(f"Server Listening on {serverIP}:{port}")
+
+        self.mySel.register(self.server, selectors.EVENT_READ, self.accept)
+
+        while self.numClients == None or self.numClients > 0:
+            for key, mask in self.mySel.select(timeout=1):
+                callback = key.data
+                callback(key.fileobj, mask)
+
+        print("Server connection closed")
+        self.mySel.close()
+        self.server.close()
+
+    def accept(self, sock, mask):
+        new_connection, addr = sock.accept()
+        if self.numClients == None:
+            self.numClients = 1
+        else:
+            self.numClients += 1
+        print('Server Accept({})'.format(addr))
+        new_connection.setblocking(False)
+        self.mySel.register(new_connection, selectors.EVENT_READ, self.read)
+        self.clients.append(new_connection)
+
+    def read(self, clientSocket, mask):
+        client_address = clientSocket.getpeername()
+        print('Read({})'.format(client_address))
+        request = clientSocket.recv(1024).decode()
+
+        if self.receiveRequestForClose(clientSocket, request) == True:
+            self.mySel.unregister(clientSocket)
+            self.clients.remove(clientSocket)
+            clientSocket.close()
+            self.numClients -= 1
+
+        self.receiveRequestForName(clientSocket, request)
+        self.receiveRequestForWaitingRoom(clientSocket, request)
+        self.receiveRequestForQuestion(clientSocket, request)
+        self.receiveRequestForAnswer(clientSocket, request)
 
     def receiveRequestForClose(self, clientSocket, message):
         request = json.loads(message)
@@ -98,7 +145,8 @@ class ServerSocket:
             "type": protocol.WAITING_ROOM_TYPE,
             "data": self.nickNames
         }
-        clientSocket.send(json.dumps(waitingRoomJson, indent=2).encode())
+        for client in self.clients:
+            client.send(json.dumps(waitingRoomJson, indent=2).encode())
     
     def receiveRequestForQuestion(self, clientSocket, message):
         request = json.loads(message)
@@ -157,7 +205,7 @@ def main():
         port = int(sys.argv[2])
     
     serverSocket = ServerSocket()
-    serverSocket.runServer(serverIP, port)
+    serverSocket.runServerForNonBlockingSocket(serverIP, port)
 
 if __name__ == "__main__":
-    main()
+    main()  

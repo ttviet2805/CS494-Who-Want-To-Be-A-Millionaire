@@ -62,16 +62,20 @@ class Menu:
 				if event.type == pygame.QUIT:
 					self.running = False
 					break
+			
+			clientSocket.isReceiveResponse()
 
 			# Check if the register button is clicked
 			isInWaitingRoom = False
 			if self.registerButton.isClicked(self.gameScreen):
 				clientSocket.sendRequest("REQUEST", protocol.REG_NICKNAME_TYPE, self.enterUserNameButton.getText())
-				responseState = clientSocket.receiveRequestForName()
-				if responseState == True:
+						
+			registerData = clientSocket.receiveUIResponse(protocol.REG_NICKNAME_TYPE)
+			if registerData != None:
+				if registerData == protocol.REG_COMPLETE_RESPONSE:
 					self.announceRegister.changeTextContent(protocol.REG_COMPLETE_RESPONSE)
 					isInWaitingRoom = True
-				elif responseState == False:
+				elif registerData == protocol.REG_EXIST_RESPONSE:
 					self.announceRegister.changeTextContent(protocol.REG_EXIST_RESPONSE)
 
 			if self.enterUserNameButton.isClicked(self.gameScreen):
