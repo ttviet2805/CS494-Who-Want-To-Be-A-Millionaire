@@ -5,7 +5,7 @@ questions = [
         "correct_answer": 0
     },
     {
-        "question": "Which planet is known as the 'Red Planet'?",
+        "question": "Which planet in our solar system is known as the 'Red Planet'?",
         "answer": ["Jupiter", "Mars", "Venus", "Saturn"],
         "correct_answer": 1
     },
@@ -48,5 +48,35 @@ questions = [
         "question": "What is the currency of Japan?",
         "answer": ["Euro", "Dollar", "Yen", "Pound"],
         "correct_answer": 2
+    },
+    {
+        "question": "Which famous physicist developed the theory of relativity?",
+        "answer": ["Isaac Newton", "Stephen Hawking", "Albert Einstein", "Max Planck"],
+        "correct_answer": 2
+    },
+    {
+        "question": "What is the largest mammal in the world?",
+        "answer": ["Elephant", "Giraffe", "Shark", "Blue whale"],
+        "correct_answer": 3
+    },
+    {
+        "question": "What is the currency of Vietnam?",
+        "answer": ["Euro", "Dollar", "Yen", "VND"],
+        "correct_answer": 3
+    },
+    {
+        "question": "What is the chemical symbol for gold?",
+        "answer": ["Au", "Fe", "H", "Cr"],
+        "correct_answer": 0
+    },
+    {
+        "question": "What is the name of the famous ship that sank in 1912 after hitting an iceberg?",
+        "answer": ["Mayflower", "Titanic", "Santa Maria", "Victory"],
+        "correct_answer": 1
+    },
+    {
+        "question": "What is the smallest country in the world by land area?",
+        "answer": ["Japan", "Vatican City", "Singapore", "Iceland"],
+        "correct_answer": 1
     }
 ]
