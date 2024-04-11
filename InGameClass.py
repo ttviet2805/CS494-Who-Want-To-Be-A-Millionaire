@@ -27,10 +27,10 @@ class InGame:
 		# Numplayers Text
 		self.numsPlayerText = TextClass.Text(
 			Const.FONT, 
-			Const.WHITE, 
+			Const.RED, 
 			self.screenHeight // 30, 
 			f"Number of Players: 0", 
-			(self.screenWidth // 60, self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
+			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 30 + self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
 		)
 
 		# Current Order Text
@@ -39,7 +39,7 @@ class InGame:
 			Const.WHITE, 
 			self.screenHeight // 30, 
 			f"Current Order: 0", 
-			(self.screenWidth // 60, self.screenHeight // 100 + self.screenHeight // 30, self.screenWidth // 6, self.screenHeight // 30)
+			(self.screenWidth // 60, self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
 		)
 	
 		# My Order Text
@@ -48,17 +48,17 @@ class InGame:
 			Const.RED, 
 			self.screenHeight // 30, 
 			f"Your Order: 0", 
-			(self.screenWidth // 60, self.screenHeight // 100 + self.screenHeight // 15, self.screenWidth // 6, self.screenHeight // 30)
+			(self.screenWidth // 60, self.screenHeight // 100 + self.screenHeight // 30, self.screenWidth // 6, self.screenHeight // 30)
 		)
 		
 		# Your Name Text
-		self.mode = "Player Mode"
+		self.mode = "PLAYER MODE"
 		self.modeText = TextClass.Text(
 			Const.FONT, 
 			Const.RED, 
 			self.screenHeight // 20, 
 			self.mode, 
-			(0, self.screenHeight // 100, self.screenWidth, self.screenHeight // 25)
+			(0, self.screenHeight // 50, self.screenWidth, self.screenHeight // 25)
 		)
 	
 		# Nums Questions Text
@@ -68,15 +68,6 @@ class InGame:
 			self.screenHeight // 30, 
 			f"Number of Question: 0", 
 			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
-		)
-
-		# Remaining Time Button
-		self.remainTimeText = TextClass.Text(
-			Const.FONT, 
-			Const.WHITE, 
-			self.screenHeight // 30, 
-			f"Time: 0s", 
-			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 30 + self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
 		)
 
 		# Question Text
@@ -134,7 +125,7 @@ class InGame:
 			clientSocket.isReceiveResponse()
 
 			# Check if the next button is clicked
-			if self.myOrder == self.currentOrder and self.mode == "Player Mode":
+			if self.myOrder == self.currentOrder and self.mode == "PLAYER MODE":
 				nextButtonClick = self.nextButton.isClicked(self.gameScreen)
 				if nextButtonClick == True and self.clickedNextButton == False:
 					pygame.time.delay(1000)
@@ -145,7 +136,7 @@ class InGame:
 					self.nextButton.imageID = 2
 
 			# Check if the answer buttons are clicked
-			if self.currentOrder == self.myOrder and self.mode == "Player Mode":
+			if self.currentOrder == self.myOrder and self.mode == "PLAYER MODE":
 				for i in range(4):
 					if self.listAnswersButton[i].isClickedInGame(self.gameScreen):
 						answerData = {
@@ -168,12 +159,11 @@ class InGame:
 
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
-			self.numsPlayerText.drawLeftToRight(self.gameScreen)
+			self.numsPlayerText.drawRightToLeft(self.gameScreen)
 			self.currentOrderText.drawLeftToRight(self.gameScreen)
 			self.myOrderText.drawLeftToRight(self.gameScreen)
 			self.modeText.draw(self.gameScreen)
 			self.numsQuestionsText.drawRightToLeft(self.gameScreen)
-			self.remainTimeText.drawRightToLeft(self.gameScreen)
 			self.currentQuestionText.drawInGame(self.gameScreen)
 			for i in range(4):
 				self.listAnswersButton[i].drawInGame(self.gameScreen)
@@ -202,7 +192,6 @@ class InGame:
 		currentOrder = questionResponse["current_order"]
 		myOrder = questionResponse["your_order"]
 		numsQuestions = questionResponse["num_questions"]
-		remainTime = questionResponse["time"]
 		currentQuestionID = questionResponse["current_question"]
 		currentQuestionContent = questionResponse["question"]["question"]
 		listAnswers = questionResponse["question"]["answer"]
@@ -212,7 +201,6 @@ class InGame:
 		self.myOrderText.changeTextContent(f"Your Order: {myOrder}")
 		# self.myNameText.changeTextContent(f"Name: {playerName}")
 		self.numsQuestionsText.changeTextContent(f"Number of Question: {numsQuestions}")
-		self.remainTimeText.changeTextContent(f"Time: {remainTime}")
 		self.currentQuestionText.changeTextContent(f"Question {currentQuestionID}: {currentQuestionContent}")
 		for i in range(len(self.listAnswersButton)):
 			self.listAnswersButton[i].setStatus('nothing')
@@ -237,7 +225,7 @@ class InGame:
 		if disqualifiedResponse == None:
 			return None
 		if disqualifiedResponse == True:
-			self.mode = "Supervisor Mode"
+			self.mode = "SUPERVISOR MODE"
 			self.modeText.changeTextContent(self.mode)
 			for i in range(len(self.listAnswersButton)):
 				self.listAnswersButton[i].setStatus('nothing')

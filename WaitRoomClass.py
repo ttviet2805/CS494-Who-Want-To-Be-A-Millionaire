@@ -34,7 +34,7 @@ class WaitRoom:
 		self.nameText = TextClass.Text(
 			Const.FONT, 
 			Const.RED, 
-			self.screenHeight // 30, 
+			self.screenHeight // 25, 
 			f"Name: 0", 
 			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
 		)
@@ -43,7 +43,7 @@ class WaitRoom:
 		self.orderText = TextClass.Text(
 			Const.FONT, 
 			Const.WHITE, 
-			self.screenHeight // 30, 
+			self.screenHeight // 25, 
 			f"Order: 0", 
 			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 30 + self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
 		)
