@@ -1,5 +1,6 @@
 import Const
 import pygame
+import EndRoom
 import TextClass
 import ButtonClass
 import TextButtonClass
@@ -131,7 +132,7 @@ class InGame:
 					break
 
 			# Check if the answer buttons are clicked
-			if self.currentOrder == self.myOrder:
+			if self.currentOrder == self.myOrder and self.mode == "Player Mode":
 				for i in range(4):
 					if self.listAnswersButton[i].isClickedInGame(self.gameScreen):
 						answerData = {
@@ -141,7 +142,7 @@ class InGame:
 						clientSocket.sendRequest("REQUEST", protocol.ANSWER_TYPE, answerData)
 
 			# Check if the next button is clicked
-			if self.myOrder == self.currentOrder:
+			if self.myOrder == self.currentOrder and self.mode == "Player Mode":
 				nextButtonClick = self.nextButton.isClicked(self.gameScreen)
 				if (nextButtonClick == True):
 					self.clickedNextButton = True
@@ -152,6 +153,13 @@ class InGame:
 
 			self.updateQuestion(clientSocket)
 			isAnswer = self.updateAnswer(clientSocket)
+			self.updateDisqualify(clientSocket)
+			winnerResponse = clientSocket.receiveUIResponse(protocol.WINNER_TYPE)
+			if winnerResponse != None:
+				if winnerResponse['winner'] != None:
+					endRoom = EndRoom.EndRoom((self.screenWidth, self.screenHeight))
+					endRoom.run(clientSocket, winnerResponse['winner'])
+					break
 
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
@@ -170,6 +178,14 @@ class InGame:
 			if self.currentOrder == self.myOrder and isAnswer != None:
 				pygame.time.delay(3000)
 				clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, playerName)
+				clientSocket.isReceiveResponse()
+				if isAnswer == False:
+					pygame.time.delay(100)
+					clientSocket.sendRequest("REQUEST", protocol.WINNER_TYPE, playerName)
+					clientSocket.isReceiveResponse()
+					pygame.time.delay(100)
+					clientSocket.sendRequest("REQUEST", protocol.DISQUALIFIED_TYPE, playerName)
+					clientSocket.isReceiveResponse()
 
 	def updateQuestion(self, clientSocket):
 		questionResponse = clientSocket.receiveUIResponse(protocol.QUESTION_TYPE)
@@ -210,3 +226,13 @@ class InGame:
 			self.listAnswersButton[answer].setStatus('wrong')
 		self.listAnswersButton[correct_answer].setStatus('correct')
 		return answer == correct_answer
+	
+	def updateDisqualify(self, clientSocket):
+		disqualifiedResponse = clientSocket.receiveUIResponse(protocol.DISQUALIFIED_TYPE)
+		if disqualifiedResponse == None:
+			return None
+		if disqualifiedResponse == True:
+			self.mode = "Supervisor Mode"
+			self.modeText.changeTextContent(self.mode)
+			for i in range(len(self.listAnswersButton)):
+				self.listAnswersButton[i].setStatus('nothing')

@@ -26,10 +26,8 @@ def main():
     menuGame = MenuClass.Menu((infoObject.current_w * screenProportion, infoObject.current_h * screenProportion))
     menuGame.run(clientSocket)
 
-    # endRoom = EndRoom.EndRoom((infoObject.current_w * screenProportion, infoObject.current_h * screenProportion))
-    # endRoom.run(clientSocket, "Viet")
     clientSocket.sendRequest("REQUEST", protocol.CLOSE_TYPE, "")
-    clientSocket.closeConnection()
+    clientSocket.closeClient()
 
 if __name__ == "__main__":
     main()

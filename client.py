@@ -41,6 +41,9 @@ class ClientSocket:
             if mask & selectors.EVENT_READ:
                 message = self.client.recv(1024)
                 message = message.decode()
+                if message == "":
+                    continue
+                print("MES", message)
                 response = json.loads(message)
                 self.receiveResponse(response, protocol.REG_NICKNAME_TYPE)
                 self.receiveResponse(response, protocol.WAITING_ROOM_TYPE)
@@ -48,6 +51,8 @@ class ClientSocket:
                 self.receiveResponse(response, protocol.QUESTION_TYPE)
                 self.receiveResponse(response, protocol.RAISE_QUESTION_TYPE)
                 self.receiveResponse(response, protocol.ANSWER_TYPE)
+                self.receiveResponse(response, protocol.DISQUALIFIED_TYPE)
+                self.receiveResponse(response, protocol.WINNER_TYPE)
                 self.receiveResponse(response, protocol.CLOSE_TYPE)
     
     def closeClient(self):

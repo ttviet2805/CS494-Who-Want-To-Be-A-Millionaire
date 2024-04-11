@@ -77,6 +77,8 @@ class ServerSocket:
         client_address = clientSocket.getpeername()
         print('Read({})'.format(client_address))
         request = clientSocket.recv(1024).decode()
+        if request == '':
+            return
 
         if self.receiveRequestForClose(clientSocket, request) == True:
             for name in self.nickNames:
@@ -96,6 +98,8 @@ class ServerSocket:
         self.receiveRequestForQuestion(clientSocket, request)
         self.receiveRequestForRaiseQuestion(clientSocket, request)
         self.receiveRequestForAnswer(clientSocket, request)
+        self.receiveRequestForDisqualifiedPlayer(clientSocket, request)
+        self.receiveRequestForWinner(clientSocket, request)
 
     def receiveRequestForClose(self, clientSocket, message):
         request = json.loads(message)
@@ -256,6 +260,48 @@ class ServerSocket:
         for name in self.nickNames:
             client = name[1]
             client.send(json.dumps(answerJson, indent=2).encode())
+    
+    def receiveRequestForDisqualifiedPlayer(self, clientSocket, message):
+        request = json.loads(message)
+        print(request)
+        if request.get("type") is None or request.get("protocol") is None:
+            return
+        if request.get("protocol") != "REQUEST" or request["type"] != protocol.DISQUALIFIED_TYPE:
+            return
+        print("Server Received: ", request["data"])
+        disqualifyJson = {
+            "protocol": "RESPONSE",
+            "type": protocol.DISQUALIFIED_TYPE,
+            "data": False
+        }
+        if len(self.currentPlayers) > 1:
+            disqualifyJson['data'] = True
+            for player in self.currentPlayers:
+                if player[0] == request['data']['nickname']:
+                    self.currentPlayers.remove(player)
+                    break
+            self.currentPlayerIndex = self.currentPlayerIndex % len(self.currentPlayers)
+        clientSocket.send(json.dumps(disqualifyJson, indent=2).encode())
+
+    def receiveRequestForWinner(self, clientSocket, message):
+        request = json.loads(message)
+        if request.get("type") is None or request.get("protocol") is None:
+            return
+        if request.get("protocol") != "REQUEST" or request["type"] != protocol.WINNER_TYPE:
+            return
+        print("Server Received: ", request["data"])
+        winnerJson = {
+            "protocol": "RESPONSE", 
+            "type": protocol.WINNER_TYPE,
+            "data": {
+                'winner': None,
+            }
+        }
+        if len(self.currentPlayers) == 1:
+            winnerJson['data']['winner'] = self.currentPlayers[0][0]
+        for index, name in enumerate(self.nickNames):
+            client = name[1]
+            client.send(json.dumps(winnerJson, indent=2).encode())
 
     def getNicknameOrder(self, nickname):
         for index, name in enumerate(self.nickNames):

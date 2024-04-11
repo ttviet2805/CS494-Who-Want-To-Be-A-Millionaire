@@ -3,8 +3,7 @@ import pygame
 import TextClass
 import ButtonClass
 import TextButtonClass
-import InGameClass
-import protocol
+import MenuClass
 
 class EndRoom:
 	def __init__(self, screenSize):
@@ -46,14 +45,14 @@ class EndRoom:
 
 
 		# Home Button
-		self.homeButton = ButtonClass.Button(
+		self.quitButton = ButtonClass.Button(
 			(self.screenWidth // 4, self.screenHeight // 8), 
 			Const.HOME_BUTTON, 
 			(0, 3 * self.screenHeight // 6, self.screenWidth, self.screenHeight // 8)
 		)	
 
 	def run(self, clientSocket, playerName):
-
+		self.winnerButton.changeTextContent(playerName)
 		while self.running:
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
@@ -61,14 +60,12 @@ class EndRoom:
 					break
 				
 			# Check if the start button is clicked
-			if self.homeButton.isClicked(self.gameScreen):
-				
-				print("Home Button Clicked")
+			if self.quitButton.isClicked(self.gameScreen):
 				break
 
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
 			self.standingTitle.draw(self.gameScreen)
 			self.winnerButton.drawInGame(self.gameScreen)
-			self.homeButton.draw(self.gameScreen)
+			self.quitButton.draw(self.gameScreen)
 			pygame.display.update()
