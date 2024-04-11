@@ -51,11 +51,12 @@ class InGame:
 		)
 		
 		# Your Name Text
-		self.myNameText = TextClass.Text(
+		self.mode = "Player Mode"
+		self.modeText = TextClass.Text(
 			Const.FONT, 
 			Const.RED, 
-			self.screenHeight // 25, 
-			f"Your Name: 0", 
+			self.screenHeight // 20, 
+			self.mode, 
 			(0, self.screenHeight // 100, self.screenWidth, self.screenHeight // 25)
 		)
 	
@@ -157,7 +158,7 @@ class InGame:
 			self.numsPlayerText.drawLeftToRight(self.gameScreen)
 			self.currentOrderText.drawLeftToRight(self.gameScreen)
 			self.myOrderText.drawLeftToRight(self.gameScreen)
-			self.myNameText.draw(self.gameScreen)
+			self.modeText.draw(self.gameScreen)
 			self.numsQuestionsText.drawRightToLeft(self.gameScreen)
 			self.remainTimeText.drawRightToLeft(self.gameScreen)
 			self.currentQuestionText.drawInGame(self.gameScreen)
@@ -188,7 +189,7 @@ class InGame:
 		self.numsPlayerText.changeTextContent(f"Number of Players: {numsPlayer}")
 		self.currentOrderText.changeTextContent(f"Current Order: {currentOrder}")
 		self.myOrderText.changeTextContent(f"Your Order: {myOrder}")
-		self.myNameText.changeTextContent(f"Name: {playerName}")
+		# self.myNameText.changeTextContent(f"Name: {playerName}")
 		self.numsQuestionsText.changeTextContent(f"Number of Question: {numsQuestions}")
 		self.remainTimeText.changeTextContent(f"Time: {remainTime}")
 		self.currentQuestionText.changeTextContent(f"Question {currentQuestionID}: {currentQuestionContent}")
