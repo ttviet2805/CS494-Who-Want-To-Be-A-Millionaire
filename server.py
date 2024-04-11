@@ -173,7 +173,8 @@ class ServerSocket:
                 }
             }
         }
-        clientSocket.send(json.dumps(questionJson, indent=2).encode())
+        for client in self.clients:
+            client.send(json.dumps(questionJson, indent=2).encode())
     
     def receiveRequestForAnswer(self, clientSocket, message):
         request = json.loads(message)
@@ -185,10 +186,12 @@ class ServerSocket:
         answerJson = {
             "protocol": "RESPONSE", 
             "type": protocol.ANSWER_TYPE,
-            "data": (request["data"]["answer"] == self.questions[self.curQuestion]["correct_answer"])
+            "data": {
+                "answer": request["data"]["answer"],
+                "correct_answer": self.questions[self.curQuestion]["correct_answer"]
+            }
         }
         clientSocket.send(json.dumps(answerJson, indent=2).encode())
-
 
 import sys
 

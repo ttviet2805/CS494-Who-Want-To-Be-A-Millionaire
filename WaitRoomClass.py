@@ -52,12 +52,10 @@ class WaitRoom:
 
 			clientSocket.isReceiveResponse()
 
-			waitingRoomData = clientSocket.receiveUIResponse(protocol.WAITING_ROOM_TYPE)
-			if waitingRoomData != None:
-				print("OKE IN HERE")
-				print(waitingRoomData)
+			waitingRoomResponse = clientSocket.receiveUIResponse(protocol.WAITING_ROOM_TYPE)
+			if waitingRoomResponse != None:
 				self.listPlayersButton = []
-				for i in range(len(waitingRoomData)):
+				for i in range(len(waitingRoomResponse)):
 					self.listPlayersButton.append(
 						TextButtonClass.TextButton(
 							(self.screenWidth // 6, self.screenHeight // 8), 
@@ -68,15 +66,15 @@ class WaitRoom:
 								self.screenWidth // 6,
 								self.screenHeight // 8
 							),
-							waitingRoomData[i]
+							waitingRoomResponse[i]
 						)
 					)
 				
 			# Check if the start button is clicked
 			if self.startButton.isClicked(self.gameScreen):
+				pygame.time.delay(1000)
 				inGame = InGameClass.InGame((self.screenWidth, self.screenHeight), playerName)
 				inGame.run(clientSocket)
-				print("Start Button Clicked")
 				break
 
 			# Draw Window

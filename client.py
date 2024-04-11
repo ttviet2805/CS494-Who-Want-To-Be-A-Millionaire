@@ -7,7 +7,6 @@ class ClientSocket:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.mySel = selectors.DefaultSelector()
-        self.keepRunning = True
 
         self.responses = {}
 
@@ -39,9 +38,6 @@ class ClientSocket:
 
     def isReceiveResponse(self):
         for key, mask in self.mySel.select(timeout=0):
-            connection = key.fileobj
-            client_address = connection.getpeername()
-            # print('client({})'.format(client_address))
             if mask & selectors.EVENT_READ:
                 message = self.client.recv(1024)
                 message = message.decode()
@@ -51,28 +47,6 @@ class ClientSocket:
                 self.receiveResponse(response, protocol.QUESTION_TYPE)
                 self.receiveResponse(response, protocol.ANSWER_TYPE)
                 self.receiveResponse(response, protocol.CLOSE_TYPE)
-
-    def runClientForNonBlockingSocket(self):
-        self.mySel.register(self.client, selectors.EVENT_READ,)
-
-        while self.keepRunning:
-            for key, mask in self.mySel.select(timeout=0):
-                connection = key.fileobj
-                client_address = connection.getpeername()
-                print('client({})'.format(client_address))
-                if mask & selectors.EVENT_READ:
-                    message = self.client.recv(1024)
-                    message = message.decode()
-                    response = json.loads(message)
-                    self.receiveResponse(response, protocol.REG_NICKNAME)
-                    self.receiveResponse(response, protocol.WAITING_ROOM)
-                    self.receiveResponse(response, protocol.QUESTION)
-                    self.receiveResponse(response, protocol.ANSWER)
-                    self.receiveResponse(response, protocol.CLOSE)
-        
-        print("Client connect to server closed")
-        self.client.close()
-        self.mySel.close()
     
     def closeClient(self):
         print("Client connect to server closed")
