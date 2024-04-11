@@ -6,7 +6,7 @@ import TextButtonClass
 import protocol
 
 class InGame:
-	def __init__(self, screenSize, playerName):
+	def __init__(self, screenSize):
 		pygame.init()
 
 		# Menu screen
@@ -21,36 +21,30 @@ class InGame:
 		# Menu Background
 		self.backgroundImage = pygame.transform.scale(Const.BACKGROUND, (self.screenWidth, self.screenHeight))
 
-		# Player's name
-		self.playerName = playerName
-
 		# Numplayers Text
-		self.numsPlayer = 10
 		self.numsPlayerText = TextClass.Text(
 			Const.FONT, 
 			Const.WHITE, 
 			self.screenHeight // 30, 
-			f"Number of Players: {self.numsPlayer}", 
+			f"Number of Players: 0", 
 			(self.screenWidth // 60, self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
 		)
 
 		# Current Order Text
-		self.currentOrder = 1
 		self.currentOrderText = TextClass.Text(
 			Const.FONT, 
 			Const.WHITE, 
 			self.screenHeight // 30, 
-			f"Current Order: {self.currentOrder}", 
+			f"Current Order: 0", 
 			(self.screenWidth // 60, self.screenHeight // 100 + self.screenHeight // 30, self.screenWidth // 6, self.screenHeight // 30)
 		)
 	
 		# My Order Text
-		self.myOrder = 1
 		self.myOrderText = TextClass.Text(
 			Const.FONT, 
 			Const.RED, 
 			self.screenHeight // 30, 
-			f"Your Order: {self.myOrder}", 
+			f"Your Order: 0", 
 			(self.screenWidth // 60, self.screenHeight // 100 + self.screenHeight // 15, self.screenWidth // 6, self.screenHeight // 30)
 		)
 		
@@ -59,38 +53,34 @@ class InGame:
 			Const.FONT, 
 			Const.RED, 
 			self.screenHeight // 25, 
-			f"Your Name: {self.playerName}", 
+			f"Your Name: 0", 
 			(0, self.screenHeight // 100, self.screenWidth, self.screenHeight // 25)
 		)
 	
 		# Nums Questions Text
-		self.numsQuestions = 20
 		self.numsQuestionsText = TextClass.Text(
 			Const.FONT, 
 			Const.WHITE, 
 			self.screenHeight // 30, 
-			f"Number of Question: {self.numsQuestions}", 
+			f"Number of Question: 0", 
 			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
 		)
 
 		# Remaining Time Button
-		self.remainTime = 40
 		self.remainTimeText = TextClass.Text(
 			Const.FONT, 
 			Const.WHITE, 
 			self.screenHeight // 30, 
-			f"Time: {self.remainTime}s", 
+			f"Time: 0s", 
 			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 30 + self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
 		)
 
 		# Question Text
-		self.currentQuestionID = 0
-		self.currentQuestionContent = ""
 		self.currentQuestionText = TextButtonClass.TextButton(
 			(5 * self.screenWidth // 7, self.screenHeight // 5), 
 			Const.QUESTION_BUTTON, 
 			(self.screenWidth // 7, self.screenHeight // 6, 5 * self.screenWidth // 7, self.screenHeight // 5),
-			f"Question {self.currentQuestionID} : {self.currentQuestionContent}", 
+			f"Question 0 : 0", 
 		)
 
 		# List Answers Button
@@ -128,22 +118,20 @@ class InGame:
 			(9 * self.screenWidth // 10 - self.screenWidth // 100, self.screenHeight // 8, self.screenWidth // 10, self.screenHeight // 12)
 		)
 
-	def run(self, clientSocket):
+	def run(self, clientSocket, playerName):
+		clientSocket.sendRequest("REQUEST", protocol.QUESTION_TYPE, playerName)
+
 		while self.running:
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					self.running = False
 					break
 
-			if self.currentQuestionID == 0:
-				self.currentQuestionID += 1
-				clientSocket.sendRequest("REQUEST", protocol.QUESTION_TYPE, self.playerName)
-
 			# Check if the answer buttons are clicked
 			for i in range(4):
 				if self.listAnswersButton[i].isClickedInGame(self.gameScreen):
 					answerData = {
-						"nickname": self.playerName,
+						"nickname": playerName,
 						"answer": i
 					}
 					clientSocket.sendRequest("REQUEST", protocol.ANSWER_TYPE, answerData)
@@ -175,33 +163,33 @@ class InGame:
 			pygame.display.update()
 
 			if isAnswer != None:
-				clientSocket.sendRequest("REQUEST", protocol.QUESTION_TYPE, self.playerName)
+				clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, playerName)
 				pygame.time.delay(2000)
-				self.currentQuestionID += 1
 
 	def updateQuestion(self, clientSocket):
 		questionResponse = clientSocket.receiveUIResponse(protocol.QUESTION_TYPE)
 		if questionResponse == None:
 			return
 
-		self.numsPlayer = questionResponse["num_players"]
-		self.currentOrder = questionResponse["current_order"]
-		self.myOrder = questionResponse["your_order"]
-		self.numsQuestions = questionResponse["num_questions"]
-		self.remainTime = questionResponse["time"]
-		self.currentQuestionID = questionResponse["current_question"]
-		self.currentQuestionContent = questionResponse["question"]["question"]
-		self.listAnswers = questionResponse["question"]["answer"]
+		playerName = questionResponse["nickname"]
+		numsPlayer = questionResponse["num_players"]
+		currentOrder = questionResponse["current_order"]
+		myOrder = questionResponse["your_order"]
+		numsQuestions = questionResponse["num_questions"]
+		remainTime = questionResponse["time"]
+		currentQuestionID = questionResponse["current_question"]
+		currentQuestionContent = questionResponse["question"]["question"]
+		listAnswers = questionResponse["question"]["answer"]
 
-		self.numsPlayerText.changeTextContent(f"Number of Players: {self.numsPlayer}")
-		self.currentOrderText.changeTextContent(f"Current Order: {self.currentOrder}")
-		self.myOrderText.changeTextContent(f"Your Order: {self.myOrder}")
-		self.myNameText.changeTextContent(f"Name: {self.playerName}")
-		self.numsQuestionsText.changeTextContent(f"Number of Question: {self.numsQuestions}")
-		self.remainTimeText.changeTextContent(f"Time: {self.remainTime}")
-		self.currentQuestionText.changeTextContent(f"Question {self.currentQuestionID}: {self.currentQuestionContent}")
+		self.numsPlayerText.changeTextContent(f"Number of Players: {numsPlayer}")
+		self.currentOrderText.changeTextContent(f"Current Order: {currentOrder}")
+		self.myOrderText.changeTextContent(f"Your Order: {myOrder}")
+		self.myNameText.changeTextContent(f"Name: {playerName}")
+		self.numsQuestionsText.changeTextContent(f"Number of Question: {numsQuestions}")
+		self.remainTimeText.changeTextContent(f"Time: {remainTime}")
+		self.currentQuestionText.changeTextContent(f"Question {currentQuestionID}: {currentQuestionContent}")
 		for i in range(len(self.listAnswersButton)):
-			self.listAnswersButton[i].changeTextContent(self.listAnswers[i])
+			self.listAnswersButton[i].changeTextContent(listAnswers[i])
 	
 	def updateAnswer(self, clientSocket):
 		answerResponse = clientSocket.receiveUIResponse(protocol.ANSWER_TYPE)

@@ -45,6 +45,7 @@ class ClientSocket:
                 self.receiveResponse(response, protocol.REG_NICKNAME_TYPE)
                 self.receiveResponse(response, protocol.WAITING_ROOM_TYPE)
                 self.receiveResponse(response, protocol.QUESTION_TYPE)
+                self.receiveResponse(response, protocol.RAISE_QUESTION_TYPE)
                 self.receiveResponse(response, protocol.ANSWER_TYPE)
                 self.receiveResponse(response, protocol.CLOSE_TYPE)
     

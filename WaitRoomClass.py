@@ -73,8 +73,8 @@ class WaitRoom:
 			# Check if the start button is clicked
 			if self.startButton.isClicked(self.gameScreen):
 				pygame.time.delay(1000)
-				inGame = InGameClass.InGame((self.screenWidth, self.screenHeight), playerName)
-				inGame.run(clientSocket)
+				inGame = InGameClass.InGame((self.screenWidth, self.screenHeight))
+				inGame.run(clientSocket, playerName)
 				break
 
 			# Draw Window

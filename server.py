@@ -20,7 +20,7 @@ class ServerSocket:
         random.shuffle(self.questions)
         self.currentOrder = 0
         self.numsQuestions = len(self.questions)
-        self.curQuestion = -1
+        self.curQuestion = 0
     
     def runServer(self, serverIP, port):
         self.server.bind((serverIP, port))
@@ -87,6 +87,7 @@ class ServerSocket:
         self.receiveRequestForName(clientSocket, request)
         self.receiveRequestForWaitingRoom(clientSocket, request)
         self.receiveRequestForQuestion(clientSocket, request)
+        self.receiveRequestForRaiseQuestion(clientSocket, request)
         self.receiveRequestForAnswer(clientSocket, request)
 
     def receiveRequestForClose(self, clientSocket, message):
@@ -155,6 +156,32 @@ class ServerSocket:
         if request.get("protocol") != "REQUEST" or request["type"] != protocol.QUESTION_TYPE:
             return
         print("Server Received: ", request["data"])
+        questionJson = {
+            "protocol": "RESPONSE",
+            "type": protocol.QUESTION_TYPE,
+            "data": {
+                "nickname": request["data"],
+                "num_players": len(self.nickNames),
+                "current_order": 1,
+                "your_order": 1,
+                "num_questions": self.numsQuestions,
+                "time": 40,
+                "current_question": self.curQuestion,
+                "question": {
+                    "question": self.questions[self.curQuestion]["question"],
+                    "answer": self.questions[self.curQuestion]["answer"]
+                }
+            }
+        }
+        clientSocket.send(json.dumps(questionJson, indent=2).encode())
+
+    def receiveRequestForRaiseQuestion(self, clientSocket, message):
+        request = json.loads(message)
+        if request.get("type") is None or request.get("protocol") is None:
+            return
+        if request.get("protocol") != "REQUEST" or request["type"] != protocol.RAISE_QUESTION_TYPE:
+            return
+        print("Server Received: ", request["data"])
         self.curQuestion += 1
         questionJson = {
             "protocol": "RESPONSE",
@@ -191,7 +218,8 @@ class ServerSocket:
                 "correct_answer": self.questions[self.curQuestion]["correct_answer"]
             }
         }
-        clientSocket.send(json.dumps(answerJson, indent=2).encode())
+        for client in self.clients:
+            client.send(json.dumps(answerJson, indent=2).encode())
 
 import sys
 
