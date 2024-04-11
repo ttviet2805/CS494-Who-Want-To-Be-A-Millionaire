@@ -133,6 +133,17 @@ class InGame:
 
 			clientSocket.isReceiveResponse()
 
+			# Check if the next button is clicked
+			if self.myOrder == self.currentOrder and self.mode == "Player Mode":
+				nextButtonClick = self.nextButton.isClicked(self.gameScreen)
+				if nextButtonClick == True and self.clickedNextButton == False:
+					pygame.time.delay(1000)
+					self.clickedNextButton = True
+					clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, playerName)
+					clientSocket.isReceiveResponse()
+				if (self.clickedNextButton == True):
+					self.nextButton.imageID = 2
+
 			# Check if the answer buttons are clicked
 			if self.currentOrder == self.myOrder and self.mode == "Player Mode":
 				for i in range(4):
@@ -142,14 +153,6 @@ class InGame:
 							"answer": i
 						}
 						clientSocket.sendRequest("REQUEST", protocol.ANSWER_TYPE, answerData)
-
-			# Check if the next button is clicked
-			if self.myOrder == self.currentOrder and self.mode == "Player Mode":
-				nextButtonClick = self.nextButton.isClicked(self.gameScreen)
-				if (nextButtonClick == True):
-					self.clickedNextButton = True
-				if (self.clickedNextButton == True):
-					self.nextButton.imageID = 2
 
 			clientSocket.isReceiveResponse()
 
