@@ -195,8 +195,8 @@ class ServerSocket:
             "data": {
                 "nickname": nickname,
                 "num_players": len(self.nickNames),
-                "current_order": f'#{self.currentPlayers[self.currentPlayerIndex][1]}-{self.currentPlayers[self.currentPlayerIndex][0]}',
-                "your_order": f'#{self.getNicknameOrder(nickname)}-{nickname}',
+                "current_order": f'#{self.currentPlayers[self.currentPlayerIndex][1]} - {self.currentPlayers[self.currentPlayerIndex][0]}',
+                "your_order": f'#{self.getNicknameOrder(nickname)} - {nickname}',
                 "num_questions": len(self.questions),
                 "time": 40,
                 "current_question": self.curQuestion,
@@ -224,8 +224,8 @@ class ServerSocket:
                 "data": {
                     "nickname": name[0],
                     "num_players": len(self.nickNames),
-                    "current_order": f'#{self.currentPlayers[self.currentPlayerIndex][1]}-{self.currentPlayers[self.currentPlayerIndex][0]}',
-                    "your_order": f'#{self.getNicknameOrder(name[0])}-{name[0]}',
+                    "current_order": f'#{self.currentPlayers[self.currentPlayerIndex][1]} - {self.currentPlayers[self.currentPlayerIndex][0]}',
+                    "your_order": f'#{self.getNicknameOrder(name[0])} - {name[0]}',
                     "num_questions": len(self.questions),
                     "time": 40,
                     "current_question": self.curQuestion,

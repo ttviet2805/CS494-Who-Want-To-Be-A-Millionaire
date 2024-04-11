@@ -30,6 +30,23 @@ class WaitRoom:
 			"WAITING ROOM", 
 			(0, self.screenHeight // 100, self.screenWidth, self.screenHeight // 10)
 		)
+
+		self.nameText = TextClass.Text(
+			Const.FONT, 
+			Const.RED, 
+			self.screenHeight // 30, 
+			f"Name: 0", 
+			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
+		)
+
+		# Remaining Time Button
+		self.orderText = TextClass.Text(
+			Const.FONT, 
+			Const.WHITE, 
+			self.screenHeight // 30, 
+			f"Order: 0", 
+			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 30 + self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
+		)
 		
 		# List Players
 		self.listPlayersButton = []
@@ -42,6 +59,7 @@ class WaitRoom:
 		)	
 
 	def run(self, clientSocket, playerName):
+		self.nameText.changeTextContent(f"Name: {playerName}")
 		clientSocket.sendRequest("REQUEST", protocol.WAITING_ROOM_TYPE, playerName)
 		waitingRoomID = -1
 
@@ -56,6 +74,7 @@ class WaitRoom:
 			waitingRoomResponse = clientSocket.receiveUIResponse(protocol.WAITING_ROOM_TYPE)
 			if waitingRoomResponse != None:
 				waitingRoomID = waitingRoomResponse['order']
+				self.orderText.changeTextContent(f"Order: #{waitingRoomID}")
 				self.listPlayersButton = []
 				for i in range(len(waitingRoomResponse['list_nicknames'])):
 					self.listPlayersButton.append(
@@ -81,6 +100,8 @@ class WaitRoom:
 			self.waitingRoomTitle.draw(self.gameScreen)
 			if waitingRoomID == 0:
 				self.startButton.draw(self.gameScreen)
+			self.orderText.drawRightToLeft(self.gameScreen)
+			self.nameText.drawRightToLeft(self.gameScreen)
 			for i in range(len(self.listPlayersButton)):
 				self.listPlayersButton[i].drawMenu(self.gameScreen)
 			pygame.display.update()
