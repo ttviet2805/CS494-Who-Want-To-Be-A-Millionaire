@@ -41,10 +41,7 @@ class ClientSocket:
             if mask & selectors.EVENT_READ:
                 message = self.client.recv(1024)
                 message = message.decode()
-                print("MESSAGE: ", message)
-                print()
                 response = json.loads(message)
-                print(response)
                 self.receiveResponse(response, protocol.REG_NICKNAME_TYPE)
                 self.receiveResponse(response, protocol.WAITING_ROOM_TYPE)
                 self.receiveResponse(response, protocol.START_GAME_TYPE)
@@ -64,7 +61,6 @@ class ClientSocket:
             "type": request_type,
             "data": data
         }
-        print("REQUESSST:", request)
         self.client.sendall(json.dumps(request, indent=2).encode()) 
     
     def receiveResponse(self, response, protocolType):
