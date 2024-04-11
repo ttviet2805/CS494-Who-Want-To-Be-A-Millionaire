@@ -41,9 +41,13 @@ class ClientSocket:
             if mask & selectors.EVENT_READ:
                 message = self.client.recv(1024)
                 message = message.decode()
+                print("MESSAGE: ", message)
+                print()
                 response = json.loads(message)
+                print(response)
                 self.receiveResponse(response, protocol.REG_NICKNAME_TYPE)
                 self.receiveResponse(response, protocol.WAITING_ROOM_TYPE)
+                self.receiveResponse(response, protocol.START_GAME_TYPE)
                 self.receiveResponse(response, protocol.QUESTION_TYPE)
                 self.receiveResponse(response, protocol.RAISE_QUESTION_TYPE)
                 self.receiveResponse(response, protocol.ANSWER_TYPE)

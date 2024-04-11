@@ -43,6 +43,7 @@ class WaitRoom:
 
 	def run(self, clientSocket, playerName):
 		clientSocket.sendRequest("REQUEST", protocol.WAITING_ROOM_TYPE, playerName)
+		waitingRoomID = -1
 
 		while self.running:
 			for event in pygame.event.get():
@@ -54,8 +55,9 @@ class WaitRoom:
 
 			waitingRoomResponse = clientSocket.receiveUIResponse(protocol.WAITING_ROOM_TYPE)
 			if waitingRoomResponse != None:
+				waitingRoomID = waitingRoomResponse['order']
 				self.listPlayersButton = []
-				for i in range(len(waitingRoomResponse)):
+				for i in range(len(waitingRoomResponse['list_nicknames'])):
 					self.listPlayersButton.append(
 						TextButtonClass.TextButton(
 							(self.screenWidth // 6, self.screenHeight // 8), 
@@ -66,21 +68,26 @@ class WaitRoom:
 								self.screenWidth // 6,
 								self.screenHeight // 8
 							),
-							waitingRoomResponse[i]
+							waitingRoomResponse['list_nicknames'][i]
 						)
 					)
 				
 			# Check if the start button is clicked
-			if self.startButton.isClicked(self.gameScreen):
-				pygame.time.delay(1000)
-				inGame = InGameClass.InGame((self.screenWidth, self.screenHeight))
-				inGame.run(clientSocket, playerName)
-				break
+			if waitingRoomID == 0 and self.startButton.isClicked(self.gameScreen):
+				clientSocket.sendRequest("REQUEST", protocol.START_GAME_TYPE, playerName)
 
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
 			self.waitingRoomTitle.draw(self.gameScreen)
-			self.startButton.draw(self.gameScreen)
+			if waitingRoomID == 0:
+				self.startButton.draw(self.gameScreen)
 			for i in range(len(self.listPlayersButton)):
 				self.listPlayersButton[i].drawMenu(self.gameScreen)
 			pygame.display.update()
+
+			startGameResponse = clientSocket.receiveUIResponse(protocol.START_GAME_TYPE)
+			if startGameResponse != None:
+				pygame.time.delay(1000)
+				inGame = InGameClass.InGame((self.screenWidth, self.screenHeight))
+				inGame.run(clientSocket, playerName)
+				break

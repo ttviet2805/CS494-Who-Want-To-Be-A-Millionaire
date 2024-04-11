@@ -79,6 +79,9 @@ class ServerSocket:
         request = clientSocket.recv(1024).decode()
 
         if self.receiveRequestForClose(clientSocket, request) == True:
+            for name in self.nickNames:
+                if name[1] == clientSocket:
+                    self.nickNames.remove(name)
             self.mySel.unregister(clientSocket)
             self.clients.remove(clientSocket)
             clientSocket.close()
@@ -86,6 +89,7 @@ class ServerSocket:
 
         self.receiveRequestForName(clientSocket, request)
         self.receiveRequestForWaitingRoom(clientSocket, request)
+        self.receiveRequestForStartGame(clientSocket, request)
         self.receiveRequestForQuestion(clientSocket, request)
         self.receiveRequestForRaiseQuestion(clientSocket, request)
         self.receiveRequestForAnswer(clientSocket, request)
@@ -106,7 +110,7 @@ class ServerSocket:
             return
         print("Server Received: ", request["data"])
         if self.checkNickName(request["data"]):
-            self.nickNames.append(request["data"])
+            self.nickNames.append((request["data"], clientSocket))
             regCompleteJson = {
                 "protocol": "RESPONSE", 
                 "type": protocol.REG_NICKNAME_TYPE,
@@ -130,7 +134,7 @@ class ServerSocket:
             else:
                 return False
         for i in self.nickNames:
-            if i == curStr:
+            if i[0] == curStr:
                 return False
         return True
     
@@ -141,14 +145,38 @@ class ServerSocket:
         if request.get("protocol") != "REQUEST" or request["type"] != protocol.WAITING_ROOM_TYPE:
             return
         print("Server Received: ", request["data"])
-        waitingRoomJson = {
-            "protocol": "RESPONSE", 
-            "type": protocol.WAITING_ROOM_TYPE,
-            "data": self.nickNames
-        }
-        for client in self.clients:
+        nameList = [i[0] for i in self.nickNames]
+        for index, name in enumerate(self.nickNames):
+            waitingRoomJson = {
+                "protocol": "RESPONSE", 
+                "type": protocol.WAITING_ROOM_TYPE,
+                "data": {
+                    "nickname": name[0],
+                    "list_nicknames": nameList,
+                    "order": index
+                }
+            }
+            client = name[1]
             client.send(json.dumps(waitingRoomJson, indent=2).encode())
-    
+
+    def receiveRequestForStartGame(self, clientSocket, message):
+        request = json.loads(message)
+        if request.get("type") is None or request.get("protocol") is None:
+            return
+        if request.get("protocol") != "REQUEST" or request["type"] != protocol.START_GAME_TYPE:
+            return
+        print("Server Received: ", request["data"])
+        for name in self.nickNames:
+            startGameJson = {
+                "protocol": "RESPONSE", 
+                "type": protocol.START_GAME_TYPE,
+                "data": {
+                    'nickname': request["data"],
+                }
+            }
+            client = name[1]
+            client.send(json.dumps(startGameJson, indent=2).encode())
+
     def receiveRequestForQuestion(self, clientSocket, message):
         request = json.loads(message)
         if request.get("type") is None or request.get("protocol") is None:
@@ -183,11 +211,12 @@ class ServerSocket:
             return
         print("Server Received: ", request["data"])
         self.curQuestion += 1
+        # for client in self.clients:
         questionJson = {
             "protocol": "RESPONSE",
             "type": protocol.QUESTION_TYPE,
             "data": {
-                "nickname": request["data"],
+                "nickname": "Huhu",
                 "num_players": len(self.nickNames),
                 "current_order": 1,
                 "your_order": 1,
@@ -200,8 +229,7 @@ class ServerSocket:
                 }
             }
         }
-        for client in self.clients:
-            client.send(json.dumps(questionJson, indent=2).encode())
+        clientSocket.send(json.dumps(questionJson, indent=2).encode())
     
     def receiveRequestForAnswer(self, clientSocket, message):
         request = json.loads(message)
