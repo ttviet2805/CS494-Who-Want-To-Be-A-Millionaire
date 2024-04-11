@@ -131,6 +131,8 @@ class InGame:
 					self.running = False
 					break
 
+			clientSocket.isReceiveResponse()
+
 			# Check if the answer buttons are clicked
 			if self.currentOrder == self.myOrder and self.mode == "Player Mode":
 				for i in range(4):
@@ -176,16 +178,16 @@ class InGame:
 			pygame.display.update()
 
 			if self.currentOrder == self.myOrder and isAnswer != None:
-				pygame.time.delay(3000)
+				pygame.time.delay(2000)
 				clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, playerName)
 				clientSocket.isReceiveResponse()
 				if isAnswer == False:
 					pygame.time.delay(100)
-					clientSocket.sendRequest("REQUEST", protocol.WINNER_TYPE, playerName)
-					clientSocket.isReceiveResponse()
-					pygame.time.delay(100)
 					clientSocket.sendRequest("REQUEST", protocol.DISQUALIFIED_TYPE, playerName)
 					clientSocket.isReceiveResponse()
+				pygame.time.delay(500)
+				clientSocket.sendRequest("REQUEST", protocol.WINNER_TYPE, playerName)
+				clientSocket.isReceiveResponse()
 
 	def updateQuestion(self, clientSocket):
 		questionResponse = clientSocket.receiveUIResponse(protocol.QUESTION_TYPE)

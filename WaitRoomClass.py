@@ -95,6 +95,8 @@ class WaitRoom:
 			if waitingRoomID == 0 and self.startButton.isClicked(self.gameScreen):
 				clientSocket.sendRequest("REQUEST", protocol.START_GAME_TYPE, playerName)
 
+			clientSocket.isReceiveResponse()
+
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
 			self.waitingRoomTitle.draw(self.gameScreen)

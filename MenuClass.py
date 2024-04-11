@@ -69,7 +69,8 @@ class Menu:
 			isInWaitingRoom = False
 			if self.registerButton.isClicked(self.gameScreen):
 				clientSocket.sendRequest("REQUEST", protocol.REG_NICKNAME_TYPE, self.enterUserNameButton.getText())
-						
+
+			clientSocket.isReceiveResponse()	
 			registerResponse = clientSocket.receiveUIResponse(protocol.REG_NICKNAME_TYPE)
 			if registerResponse != None:
 				self.announceRegister.changeTextContent(registerResponse)

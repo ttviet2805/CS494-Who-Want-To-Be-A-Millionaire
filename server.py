@@ -54,7 +54,7 @@ class ServerSocket:
         self.mySel.register(self.server, selectors.EVENT_READ, self.accept)
 
         while self.numClients == None or self.numClients > 0:
-            for key, mask in self.mySel.select(timeout=1):
+            for key, mask in self.mySel.select(timeout=0):
                 callback = key.data
                 callback(key.fileobj, mask)
 
@@ -221,6 +221,8 @@ class ServerSocket:
         print("Server Received: ", request["data"])
         self.curQuestion += 1
         self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(self.currentPlayers)
+        if self.curQuestion >= len(self.questions):
+            return
         for name in self.nickNames:
             questionJson = {
                 "protocol": "RESPONSE",
@@ -277,7 +279,7 @@ class ServerSocket:
         if len(self.currentPlayers) > 1:
             disqualifyJson['data'] = True
             for player in self.currentPlayers:
-                if player[0] == request['data']['nickname']:
+                if player[0] == request['data']:
                     self.currentPlayers.remove(player)
                     break
             self.currentPlayerIndex = self.currentPlayerIndex % len(self.currentPlayers)
@@ -297,6 +299,8 @@ class ServerSocket:
                 'winner': None,
             }
         }
+        if self.curQuestion >= len(self.questions):
+            winnerJson['data']['winner'] = request["data"]
         if len(self.currentPlayers) == 1:
             winnerJson['data']['winner'] = self.currentPlayers[0][0]
         for index, name in enumerate(self.nickNames):

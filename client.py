@@ -43,7 +43,6 @@ class ClientSocket:
                 message = message.decode()
                 if message == "":
                     continue
-                print("MES", message)
                 response = json.loads(message)
                 self.receiveResponse(response, protocol.REG_NICKNAME_TYPE)
                 self.receiveResponse(response, protocol.WAITING_ROOM_TYPE)
