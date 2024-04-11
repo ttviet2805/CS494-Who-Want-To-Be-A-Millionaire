@@ -64,6 +64,7 @@ class ClientSocket:
             "type": request_type,
             "data": data
         }
+        print("REQUESSST:", request)
         self.client.sendall(json.dumps(request, indent=2).encode()) 
     
     def receiveResponse(self, response, protocolType):

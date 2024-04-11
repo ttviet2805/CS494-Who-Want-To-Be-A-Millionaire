@@ -17,6 +17,8 @@ class InGame:
 
 		# Run
 		self.running = True
+		self.currentOrder = None
+		self.myOrder = None
 
 		# Menu Background
 		self.backgroundImage = pygame.transform.scale(Const.BACKGROUND, (self.screenWidth, self.screenHeight))
@@ -128,25 +130,27 @@ class InGame:
 					break
 
 			# Check if the answer buttons are clicked
-			for i in range(4):
-				if self.listAnswersButton[i].isClickedInGame(self.gameScreen):
-					answerData = {
-						"nickname": playerName,
-						"answer": i
-					}
-					clientSocket.sendRequest("REQUEST", protocol.ANSWER_TYPE, answerData)
+			if self.currentOrder == self.myOrder:
+				for i in range(4):
+					if self.listAnswersButton[i].isClickedInGame(self.gameScreen):
+						answerData = {
+							"nickname": playerName,
+							"answer": i
+						}
+						clientSocket.sendRequest("REQUEST", protocol.ANSWER_TYPE, answerData)
+
+			# Check if the next button is clicked
+			if self.myOrder == self.currentOrder:
+				nextButtonClick = self.nextButton.isClicked(self.gameScreen)
+				if (nextButtonClick == True):
+					self.clickedNextButton = True
+				if (self.clickedNextButton == True):
+					self.nextButton.imageID = 2
 
 			clientSocket.isReceiveResponse()
 
 			self.updateQuestion(clientSocket)
 			isAnswer = self.updateAnswer(clientSocket)
-
-			# Check if the next button is clicked
-			nextButtonClick = self.nextButton.isClicked(self.gameScreen)
-			if (nextButtonClick == True):
-				self.clickedNextButton = True
-			if (self.clickedNextButton == True):
-				self.nextButton.imageID = 2
 
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
@@ -162,9 +166,9 @@ class InGame:
 			self.nextButton.draw(self.gameScreen)
 			pygame.display.update()
 
-			if isAnswer != None:
+			if self.currentOrder == self.myOrder and isAnswer != None:
+				pygame.time.delay(3000)
 				clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, playerName)
-				pygame.time.delay(2000)
 
 	def updateQuestion(self, clientSocket):
 		questionResponse = clientSocket.receiveUIResponse(protocol.QUESTION_TYPE)
@@ -189,7 +193,11 @@ class InGame:
 		self.remainTimeText.changeTextContent(f"Time: {remainTime}")
 		self.currentQuestionText.changeTextContent(f"Question {currentQuestionID}: {currentQuestionContent}")
 		for i in range(len(self.listAnswersButton)):
+			self.listAnswersButton[i].setStatus('nothing')
 			self.listAnswersButton[i].changeTextContent(listAnswers[i])
+
+		self.currentOrder = currentOrder
+		self.myOrder = myOrder
 	
 	def updateAnswer(self, clientSocket):
 		answerResponse = clientSocket.receiveUIResponse(protocol.ANSWER_TYPE)

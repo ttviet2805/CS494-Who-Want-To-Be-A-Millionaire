@@ -16,10 +16,10 @@ class ServerSocket:
         self.nickNames = []
 
         # In game
+        self.currentPlayers = []
+        self.currentPlayerIndex = 0
         self.questions = database.questions
         random.shuffle(self.questions)
-        self.currentOrder = 0
-        self.numsQuestions = len(self.questions)
         self.curQuestion = 0
     
     def runServer(self, serverIP, port):
@@ -81,6 +81,9 @@ class ServerSocket:
         if self.receiveRequestForClose(clientSocket, request) == True:
             for name in self.nickNames:
                 if name[1] == clientSocket:
+                    for player in self.currentPlayers:
+                        if player[0] == name[0]:
+                            self.currentPlayers.remove(player)
                     self.nickNames.remove(name)
             self.mySel.unregister(clientSocket)
             self.clients.remove(clientSocket)
@@ -166,7 +169,7 @@ class ServerSocket:
         if request.get("protocol") != "REQUEST" or request["type"] != protocol.START_GAME_TYPE:
             return
         print("Server Received: ", request["data"])
-        for name in self.nickNames:
+        for index, name in enumerate(self.nickNames):
             startGameJson = {
                 "protocol": "RESPONSE", 
                 "type": protocol.START_GAME_TYPE,
@@ -176,6 +179,7 @@ class ServerSocket:
             }
             client = name[1]
             client.send(json.dumps(startGameJson, indent=2).encode())
+            self.currentPlayers.append((name[0], index))
 
     def receiveRequestForQuestion(self, clientSocket, message):
         request = json.loads(message)
@@ -184,15 +188,16 @@ class ServerSocket:
         if request.get("protocol") != "REQUEST" or request["type"] != protocol.QUESTION_TYPE:
             return
         print("Server Received: ", request["data"])
+        nickname = request["data"]
         questionJson = {
             "protocol": "RESPONSE",
             "type": protocol.QUESTION_TYPE,
             "data": {
-                "nickname": request["data"],
+                "nickname": nickname,
                 "num_players": len(self.nickNames),
-                "current_order": 1,
-                "your_order": 1,
-                "num_questions": self.numsQuestions,
+                "current_order": f'#{self.currentPlayers[self.currentPlayerIndex][1]}-{self.currentPlayers[self.currentPlayerIndex][0]}',
+                "your_order": f'#{self.getNicknameOrder(nickname)}-{nickname}',
+                "num_questions": len(self.questions),
                 "time": 40,
                 "current_question": self.curQuestion,
                 "question": {
@@ -211,25 +216,27 @@ class ServerSocket:
             return
         print("Server Received: ", request["data"])
         self.curQuestion += 1
-        # for client in self.clients:
-        questionJson = {
-            "protocol": "RESPONSE",
-            "type": protocol.QUESTION_TYPE,
-            "data": {
-                "nickname": "Huhu",
-                "num_players": len(self.nickNames),
-                "current_order": 1,
-                "your_order": 1,
-                "num_questions": self.numsQuestions,
-                "time": 40,
-                "current_question": self.curQuestion,
-                "question": {
-                    "question": self.questions[self.curQuestion]["question"],
-                    "answer": self.questions[self.curQuestion]["answer"]
+        self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(self.currentPlayers)
+        for name in self.nickNames:
+            questionJson = {
+                "protocol": "RESPONSE",
+                "type": protocol.QUESTION_TYPE,
+                "data": {
+                    "nickname": name[0],
+                    "num_players": len(self.nickNames),
+                    "current_order": f'#{self.currentPlayers[self.currentPlayerIndex][1]}-{self.currentPlayers[self.currentPlayerIndex][0]}',
+                    "your_order": f'#{self.getNicknameOrder(name[0])}-{name[0]}',
+                    "num_questions": len(self.questions),
+                    "time": 40,
+                    "current_question": self.curQuestion,
+                    "question": {
+                        "question": self.questions[self.curQuestion]["question"],
+                        "answer": self.questions[self.curQuestion]["answer"]
+                    }
                 }
             }
-        }
-        clientSocket.send(json.dumps(questionJson, indent=2).encode())
+            client = name[1]
+            client.send(json.dumps(questionJson, indent=2).encode())
     
     def receiveRequestForAnswer(self, clientSocket, message):
         request = json.loads(message)
@@ -246,8 +253,15 @@ class ServerSocket:
                 "correct_answer": self.questions[self.curQuestion]["correct_answer"]
             }
         }
-        for client in self.clients:
+        for name in self.nickNames:
+            client = name[1]
             client.send(json.dumps(answerJson, indent=2).encode())
+
+    def getNicknameOrder(self, nickname):
+        for index, name in enumerate(self.nickNames):
+            if name[0] == nickname:
+                return index
+        return -1
 
 import sys
 

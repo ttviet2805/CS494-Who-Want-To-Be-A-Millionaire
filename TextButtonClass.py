@@ -156,5 +156,9 @@ class TextButton:
 	def setStatus(self, answer):
 		if answer == 'correct':
 			self.imageID = 2
+			return
 		if answer == 'wrong':
 			self.imageID = 3
+			return
+		self.imageID = 0
+		
