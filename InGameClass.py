@@ -184,6 +184,8 @@ class InGame:
 						}
 						clientSocket.sendRequest("REQUEST", protocol.ANSWER_TYPE, answerData)
 						pygame.time.delay(300)
+						
+			clientSocket.isReceiveResponse()
 
 			self.updateQuestion(clientSocket)
 			isAnswer = self.updateAnswer(clientSocket)
@@ -196,6 +198,7 @@ class InGame:
 					break
 
 			clock.tick(30)
+			clientSocket.isReceiveResponse()
 
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
@@ -220,11 +223,14 @@ class InGame:
 				}
 				clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, raiseQuestionRequest)
 				pygame.time.delay(300)
+				clientSocket.isReceiveResponse()
 				if isAnswer == False:
 					clientSocket.sendRequest("REQUEST", protocol.DISQUALIFIED_TYPE, playerName)
 					pygame.time.delay(300)
+					clientSocket.isReceiveResponse()
 				clientSocket.sendRequest("REQUEST", protocol.WINNER_TYPE, playerName)
 				pygame.time.delay(300)
+				clientSocket.isReceiveResponse()
 
 	def updateQuestion(self, clientSocket):
 		questionResponse = clientSocket.receiveUIResponse(protocol.QUESTION_TYPE)

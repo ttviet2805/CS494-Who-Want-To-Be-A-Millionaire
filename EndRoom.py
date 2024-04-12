@@ -58,6 +58,8 @@ class EndRoom:
 				if event.type == pygame.QUIT:
 					self.running = False
 					break
+			
+			clientSocket.isReceiveResponse()
 				
 			# Check if the start button is clicked
 			if self.quitButton.isClicked(self.gameScreen):
