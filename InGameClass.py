@@ -195,6 +195,7 @@ class InGame:
 			clientSocket.isReceiveResponse()
 
 			clock.tick(30)
+
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
 			self.numsPlayerText.drawRightToLeft(self.gameScreen)
@@ -251,6 +252,11 @@ class InGame:
 
 		self.currentOrder = currentOrder
 		self.myOrder = myOrder
+		if self.mode == "PLAYER MODE":
+			if self.currentOrder == self.myOrder:
+				self.modeText.changeTextContent(f"{self.mode}-YOUR TURN")
+			else:
+				self.modeText.changeTextContent(f"{self.mode}")
 	
 	def updateAnswer(self, clientSocket):
 		answerResponse = clientSocket.receiveUIResponse(protocol.ANSWER_TYPE)
