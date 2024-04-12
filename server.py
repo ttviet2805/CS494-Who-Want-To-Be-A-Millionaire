@@ -111,7 +111,7 @@ class ServerSocket:
         requests = clientSocket.recv(1024).decode()
         if requests == '':
             return
-        print("REQ: ", requests)
+        # print("REQ: ", requests)
 
         requestJson = readJson(requests)
         for request in requestJson:
@@ -225,7 +225,8 @@ class ServerSocket:
         self.currentPlayers = sorted(self.currentPlayers, key = lambda x: x[1])
         self.questions = self.databaseQuestion
         random.shuffle(self.questions)
-        self.questions = self.questions[:50]
+        numQues = min(max(10, len(self.currentPlayers) * 3), 50)
+        self.questions = self.questions[:numQues]
         self.curQuestion = 0
         self.currentPlayerIndex = 0
         self.totalPlayers = self.currentPlayers

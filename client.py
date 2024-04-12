@@ -60,7 +60,7 @@ class ClientSocket:
                 message = message.decode()
                 if message == "":
                     continue
-                print("MES: ", message)
+                # print("MES: ", message)
                 responses = readJson(message)
                 for responseJson in responses: 
                     response = json.loads(responseJson)
