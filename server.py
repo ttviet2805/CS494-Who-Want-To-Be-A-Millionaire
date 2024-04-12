@@ -223,7 +223,6 @@ class ServerSocket:
             client.send(json.dumps(startGameJson, indent=2).encode())
             self.currentPlayers.append((name[0], playerIndex[index]))
         self.currentPlayers = sorted(self.currentPlayers, key = lambda x: x[1])
-        print("CURPLA: ", self.currentPlayers)
         self.questions = self.databaseQuestion
         random.shuffle(self.questions)
         self.questions = self.questions[:50]
@@ -268,7 +267,8 @@ class ServerSocket:
             return
         print("Server Received: ", request["data"])
         self.curQuestion += 1
-        self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(self.currentPlayers)
+        if request['data']['answer'] == False:
+            self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(self.currentPlayers)
         if self.curQuestion >= len(self.questions):
             return
         for name in self.nickNames:
