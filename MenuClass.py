@@ -68,6 +68,7 @@ class Menu:
 			isInWaitingRoom = False
 			if self.registerButton.isClicked(self.gameScreen):
 				clientSocket.sendRequest("REQUEST", protocol.REG_NICKNAME_TYPE, self.enterUserNameButton.getText())
+				pygame.time.delay(500)
 
 			clientSocket.isReceiveResponse()	
 			registerResponse = clientSocket.receiveUIResponse(protocol.REG_NICKNAME_TYPE)
