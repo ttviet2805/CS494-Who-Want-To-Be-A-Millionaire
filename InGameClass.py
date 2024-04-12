@@ -133,7 +133,9 @@ class InGame:
 
 	def run(self, clientSocket, playerName):
 		clock = pygame.time.Clock()
+		clientSocket.isReceiveResponse()
 		clientSocket.sendRequest("REQUEST", protocol.QUESTION_TYPE, playerName)
+		clientSocket.isReceiveResponse()
 
 		while self.running:
 			for event in pygame.event.get():

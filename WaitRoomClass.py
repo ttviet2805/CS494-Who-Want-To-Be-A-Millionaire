@@ -60,6 +60,7 @@ class WaitRoom:
 
 	def run(self, clientSocket, playerName):
 		self.nameText.changeTextContent(f"Name: {playerName}")
+		clientSocket.isReceiveResponse()
 		clientSocket.sendRequest("REQUEST", protocol.WAITING_ROOM_TYPE, playerName)
 		waitingRoomID = -1
 		clientSocket.isReceiveResponse()
