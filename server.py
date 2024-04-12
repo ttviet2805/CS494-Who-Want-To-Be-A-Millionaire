@@ -210,6 +210,7 @@ class ServerSocket:
         print("Server Received: ", request["data"])
         playerIndex = list(range(0, len(self.nickNames)))
         random.shuffle(playerIndex)
+        self.currentPlayers = []
         for index, name in enumerate(self.nickNames):
             startGameJson = {
                 "protocol": "RESPONSE", 

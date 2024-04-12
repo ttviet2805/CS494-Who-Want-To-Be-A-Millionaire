@@ -60,10 +60,9 @@ class WaitRoom:
 
 	def run(self, clientSocket, playerName):
 		self.nameText.changeTextContent(f"Name: {playerName}")
-		clientSocket.isReceiveResponse()
 		clientSocket.sendRequest("REQUEST", protocol.WAITING_ROOM_TYPE, playerName)
+		pygame.time.delay(300)
 		waitingRoomID = -1
-		clientSocket.isReceiveResponse()
 
 		while self.running:
 			for event in pygame.event.get():
@@ -96,6 +95,7 @@ class WaitRoom:
 			# Check if the start button is clicked
 			if waitingRoomID == 0 and self.startButton.isClicked(self.gameScreen):
 				clientSocket.sendRequest("REQUEST", protocol.START_GAME_TYPE, playerName)
+				pygame.time.delay(300)
 
 			clientSocket.isReceiveResponse()
 
