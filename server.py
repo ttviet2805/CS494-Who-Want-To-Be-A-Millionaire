@@ -225,7 +225,7 @@ class ServerSocket:
         self.currentPlayers = sorted(self.currentPlayers, key = lambda x: x[1])
         self.questions = self.databaseQuestion
         random.shuffle(self.questions)
-        numQues = min(max(10, len(self.currentPlayers) * 3), 50)
+        numQues = min(max(20, len(self.currentPlayers) * 10), 50)
         self.questions = self.questions[:numQues]
         self.curQuestion = 0
         self.currentPlayerIndex = 0
@@ -352,7 +352,7 @@ class ServerSocket:
                 'winner': None,
             }
         }
-        if self.curQuestion >= len(self.questions):
+        if self.curQuestion >= len(self.questions) - 1:
             winnerJson['data']['winner'] = request["data"]
         if len(self.currentPlayers) == 1:
             winnerJson['data']['winner'] = self.currentPlayers[0][0]
