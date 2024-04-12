@@ -41,6 +41,14 @@ class InGame:
 			f"Current Order: 0", 
 			(self.screenWidth // 60, self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
 		)
+
+		self.alivePlayerText = TextClass.Text(
+			Const.FONT, 
+			Const.WHITE, 
+			self.screenHeight // 30, 
+			f"Alive Players: 0", 
+			(self.screenWidth // 60, self.screenHeight // 100 + self.screenHeight // 15, self.screenWidth // 6, self.screenHeight // 30)
+		)
 	
 		# My Order Text
 		self.myOrderText = TextClass.Text(
@@ -68,6 +76,16 @@ class InGame:
 			self.screenHeight // 30, 
 			f"Number of Question: 0", 
 			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 100, self.screenWidth // 6, self.screenHeight // 30)
+		)
+
+		self.isPause = False
+		self.time = 30
+		self.timeText = TextClass.Text(
+			Const.FONT, 
+			Const.WHITE, 
+			self.screenHeight // 30, 
+			f"Time: 30s", 
+			(5 * self.screenWidth // 6 - self.screenWidth // 60, self.screenHeight // 100 + self.screenHeight // 15, self.screenWidth // 6, self.screenHeight // 30)
 		)
 
 		# Question Text
@@ -114,6 +132,7 @@ class InGame:
 		)
 
 	def run(self, clientSocket, playerName):
+		clock = pygame.time.Clock()
 		clientSocket.sendRequest("REQUEST", protocol.QUESTION_TYPE, playerName)
 
 		while self.running:
@@ -128,12 +147,29 @@ class InGame:
 			if self.myOrder == self.currentOrder and self.mode == "PLAYER MODE":
 				nextButtonClick = self.nextButton.isClicked(self.gameScreen)
 				if nextButtonClick == True and self.clickedNextButton == False:
-					pygame.time.delay(1000)
+					pygame.time.delay(500)
 					self.clickedNextButton = True
 					clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, playerName)
+					pygame.time.delay(500)
 					clientSocket.isReceiveResponse()
 				if (self.clickedNextButton == True):
 					self.nextButton.imageID = 2
+
+			clientSocket.isReceiveResponse()
+			if self.currentOrder == self.myOrder and self.mode == "PLAYER MODE":
+				self.time -= clock.get_time() / 1000
+				if self.time <= 0:
+					self.time = 0
+					if self.isPause == False:
+						answerData = {
+							"nickname": playerName,
+							"answer": -1
+						}
+						clientSocket.sendRequest("REQUEST", protocol.ANSWER_TYPE, answerData)
+						pygame.time.delay(500)
+					self.isPause = True
+				self.timeText.changeTextContent("Time: {:.1f}".format(self.time))
+			clientSocket.isReceiveResponse()
 
 			# Check if the answer buttons are clicked
 			if self.currentOrder == self.myOrder and self.mode == "PLAYER MODE":
@@ -156,15 +192,19 @@ class InGame:
 					endRoom = EndRoom.EndRoom((self.screenWidth, self.screenHeight))
 					endRoom.run(clientSocket, winnerResponse['winner'])
 					break
+			clientSocket.isReceiveResponse()
 
+			clock.tick(30)
 			# Draw Window
 			self.gameScreen.blit(self.backgroundImage, (0, 0))
 			self.numsPlayerText.drawRightToLeft(self.gameScreen)
 			self.currentOrderText.drawLeftToRight(self.gameScreen)
 			self.myOrderText.drawLeftToRight(self.gameScreen)
+			self.alivePlayerText.drawLeftToRight(self.gameScreen)
 			self.modeText.draw(self.gameScreen)
 			self.numsQuestionsText.drawRightToLeft(self.gameScreen)
 			self.currentQuestionText.drawInGame(self.gameScreen)
+			self.timeText.drawRightToLeft(self.gameScreen)
 			for i in range(4):
 				self.listAnswersButton[i].drawInGame(self.gameScreen)
 			self.nextButton.draw(self.gameScreen)
@@ -175,7 +215,7 @@ class InGame:
 				clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, playerName)
 				clientSocket.isReceiveResponse()
 				if isAnswer == False:
-					pygame.time.delay(100)
+					pygame.time.delay(500)
 					clientSocket.sendRequest("REQUEST", protocol.DISQUALIFIED_TYPE, playerName)
 					clientSocket.isReceiveResponse()
 				pygame.time.delay(500)
@@ -187,21 +227,24 @@ class InGame:
 		if questionResponse == None:
 			return
 
-		playerName = questionResponse["nickname"]
 		numsPlayer = questionResponse["num_players"]
 		currentOrder = questionResponse["current_order"]
+		alivePlayer = questionResponse["alive_players"]
 		myOrder = questionResponse["your_order"]
 		numsQuestions = questionResponse["num_questions"]
 		currentQuestionID = questionResponse["current_question"]
 		currentQuestionContent = questionResponse["question"]["question"]
 		listAnswers = questionResponse["question"]["answer"]
+		self.time = questionResponse["time"]
+		self.isPause = False
 
 		self.numsPlayerText.changeTextContent(f"Number of Players: {numsPlayer}")
 		self.currentOrderText.changeTextContent(f"Current Order: {currentOrder}")
 		self.myOrderText.changeTextContent(f"Your Order: {myOrder}")
-		# self.myNameText.changeTextContent(f"Name: {playerName}")
+		self.alivePlayerText.changeTextContent(f"Alive Players: {alivePlayer}")
 		self.numsQuestionsText.changeTextContent(f"Number of Question: {numsQuestions}")
 		self.currentQuestionText.changeTextContent(f"Question {currentQuestionID}: {currentQuestionContent}")
+		self.timeText.changeTextContent(f"Time: {self.time}s")
 		for i in range(len(self.listAnswersButton)):
 			self.listAnswersButton[i].setStatus('nothing')
 			self.listAnswersButton[i].changeTextContent(listAnswers[i])
@@ -216,7 +259,8 @@ class InGame:
 		answer = answerResponse['answer']
 		correct_answer = answerResponse['correct_answer']
 		if answer != correct_answer:
-			self.listAnswersButton[answer].setStatus('wrong')
+			if answer != -1:
+				self.listAnswersButton[answer].setStatus('wrong')
 		self.listAnswersButton[correct_answer].setStatus('correct')
 		return answer == correct_answer
 	
