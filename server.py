@@ -267,7 +267,6 @@ class ServerSocket:
         if request.get("protocol") != "REQUEST" or request["type"] != protocol.RAISE_QUESTION_TYPE:
             return
         print("Server Received: ", request["data"])
-        print("RESDATA: ", request["data"])
         if request['data']['answer'] == 'Next':
             self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(self.currentPlayers)
         else:
@@ -336,7 +335,6 @@ class ServerSocket:
                 if player[0] == request['data']:
                     self.currentPlayers.remove(player)
                     break
-            print("CCC: ", self.currentPlayers)
             self.currentPlayerIndex = self.currentPlayerIndex % len(self.currentPlayers)
         clientSocket.send(json.dumps(disqualifyJson, indent=2).encode())
 
