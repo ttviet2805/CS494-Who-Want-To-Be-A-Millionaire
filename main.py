@@ -3,6 +3,19 @@ import pygame
 import sys
 import client
 import protocol
+import socket
+
+def get_router_ip():
+    try:
+        # Connect to a public DNS server
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        router_ip = s.getsockname()[0]
+        s.close()
+        return router_ip
+    except Exception as e:
+        print("Error occurred:", e)
+        return None
 
 def main():
     for arg in sys.argv[1:]:
@@ -15,6 +28,10 @@ def main():
     if(len(sys.argv) >= 3):
         port = int(sys.argv[2])
     
+    if serverIP.lower() == 'lan':
+        serverIP = get_router_ip()
+        print("LAN IP:", serverIP)
+
     clientSocket = client.ClientSocket()
     clientSocket.clientConnectToServer(serverIP, port)
 

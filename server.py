@@ -4,6 +4,19 @@ import json
 import protocol
 import database
 import random
+import socket
+
+def get_router_ip():
+    try:
+        # Connect to a public DNS server
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        router_ip = s.getsockname()[0]
+        s.close()
+        return router_ip
+    except Exception as e:
+        print("Error occurred:", e)
+        return None
 
 class ServerSocket:
     def __init__(self):
@@ -324,6 +337,10 @@ def main():
         serverIP = sys.argv[1]
     if(len(sys.argv) >= 3):
         port = int(sys.argv[2])
+
+    if serverIP.lower() == 'lan':
+        serverIP = get_router_ip()
+        print("Server LAN IP: ", serverIP)
     
     serverSocket = ServerSocket()
     serverSocket.runServerForNonBlockingSocket(serverIP, port)
