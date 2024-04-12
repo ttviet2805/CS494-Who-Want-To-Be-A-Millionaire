@@ -3,6 +3,23 @@ import selectors
 import json
 import protocol
 
+def readJson(content):
+	cnt = 0
+	curString = ''
+	res = []
+	for c in content:
+		curString = curString + c
+		# print("# ", c)
+		if c == '{':
+			cnt += 1
+		if c == '}':
+			cnt -= 1
+			if cnt == 0:
+				res.append(curString)
+				curString = ''
+
+	return res
+
 class ClientSocket:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -43,16 +60,19 @@ class ClientSocket:
                 message = message.decode()
                 if message == "":
                     continue
-                response = json.loads(message)
-                self.receiveResponse(response, protocol.REG_NICKNAME_TYPE)
-                self.receiveResponse(response, protocol.WAITING_ROOM_TYPE)
-                self.receiveResponse(response, protocol.START_GAME_TYPE)
-                self.receiveResponse(response, protocol.QUESTION_TYPE)
-                self.receiveResponse(response, protocol.RAISE_QUESTION_TYPE)
-                self.receiveResponse(response, protocol.ANSWER_TYPE)
-                self.receiveResponse(response, protocol.DISQUALIFIED_TYPE)
-                self.receiveResponse(response, protocol.WINNER_TYPE)
-                self.receiveResponse(response, protocol.CLOSE_TYPE)
+                print("MES: ", message)
+                responses = readJson(message)
+                for responseJson in responses: 
+                    response = json.loads(responseJson)
+                    self.receiveResponse(response, protocol.REG_NICKNAME_TYPE)
+                    self.receiveResponse(response, protocol.WAITING_ROOM_TYPE)
+                    self.receiveResponse(response, protocol.START_GAME_TYPE)
+                    self.receiveResponse(response, protocol.QUESTION_TYPE)
+                    self.receiveResponse(response, protocol.RAISE_QUESTION_TYPE)
+                    self.receiveResponse(response, protocol.ANSWER_TYPE)
+                    self.receiveResponse(response, protocol.DISQUALIFIED_TYPE)
+                    self.receiveResponse(response, protocol.WINNER_TYPE)
+                    self.receiveResponse(response, protocol.CLOSE_TYPE)
     
     def closeClient(self):
         print("Client connect to server closed")

@@ -3,7 +3,6 @@ import pygame
 import TextClass
 import ButtonClass
 import TextButtonClass
-import InGameClass
 import WaitRoomClass
 import protocol
 

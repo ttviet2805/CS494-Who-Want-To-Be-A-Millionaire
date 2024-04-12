@@ -149,15 +149,15 @@ class InGame:
 			if self.myOrder == self.currentOrder and self.mode == "PLAYER MODE":
 				nextButtonClick = self.nextButton.isClicked(self.gameScreen)
 				if nextButtonClick == True and self.clickedNextButton == False:
-					pygame.time.delay(500)
+					# pygame.time.delay(500)
 					self.clickedNextButton = True
 					clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, playerName)
-					pygame.time.delay(500)
-					clientSocket.isReceiveResponse()
+					# pygame.time.delay(500)
+					# clientSocket.isReceiveResponse()
 				if (self.clickedNextButton == True):
 					self.nextButton.imageID = 2
 
-			clientSocket.isReceiveResponse()
+			# clientSocket.isReceiveResponse()
 			if self.currentOrder == self.myOrder and self.mode == "PLAYER MODE":
 				self.time -= clock.get_time() / 1000
 				if self.time <= 0:
@@ -168,10 +168,10 @@ class InGame:
 							"answer": -1
 						}
 						clientSocket.sendRequest("REQUEST", protocol.ANSWER_TYPE, answerData)
-						pygame.time.delay(500)
+						# pygame.time.delay(500)
 					self.isPause = True
 				self.timeText.changeTextContent("Time: {:.1f}".format(self.time))
-			clientSocket.isReceiveResponse()
+			# clientSocket.isReceiveResponse()
 
 			# Check if the answer buttons are clicked
 			if self.currentOrder == self.myOrder and self.mode == "PLAYER MODE":
@@ -183,7 +183,7 @@ class InGame:
 						}
 						clientSocket.sendRequest("REQUEST", protocol.ANSWER_TYPE, answerData)
 
-			clientSocket.isReceiveResponse()
+			# clientSocket.isReceiveResponse()
 
 			self.updateQuestion(clientSocket)
 			isAnswer = self.updateAnswer(clientSocket)
@@ -194,7 +194,7 @@ class InGame:
 					endRoom = EndRoom.EndRoom((self.screenWidth, self.screenHeight))
 					endRoom.run(clientSocket, playerName, winnerResponse['winner'])
 					break
-			clientSocket.isReceiveResponse()
+			# clientSocket.isReceiveResponse()
 
 			clock.tick(30)
 
@@ -216,14 +216,14 @@ class InGame:
 			if self.currentOrder == self.myOrder and isAnswer != None:
 				pygame.time.delay(2000)
 				clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, playerName)
-				clientSocket.isReceiveResponse()
+				# clientSocket.isReceiveResponse()
 				if isAnswer == False:
-					pygame.time.delay(500)
+					# pygame.time.delay(500)
 					clientSocket.sendRequest("REQUEST", protocol.DISQUALIFIED_TYPE, playerName)
-					clientSocket.isReceiveResponse()
-				pygame.time.delay(500)
+					# clientSocket.isReceiveResponse()
+				# pygame.time.delay(500)
 				clientSocket.sendRequest("REQUEST", protocol.WINNER_TYPE, playerName)
-				clientSocket.isReceiveResponse()
+				# clientSocket.isReceiveResponse()
 
 	def updateQuestion(self, clientSocket):
 		questionResponse = clientSocket.receiveUIResponse(protocol.QUESTION_TYPE)

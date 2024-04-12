@@ -17,6 +17,23 @@ def get_router_ip():
     except Exception as e:
         print("Error occurred:", e)
         return None
+    
+def readJson(content):
+	cnt = 0
+	curString = ''
+	res = []
+	for c in content:
+		curString = curString + c
+		# print("# ", c)
+		if c == '{':
+			cnt += 1
+		if c == '}':
+			cnt -= 1
+			if cnt == 0:
+				res.append(curString)
+				curString = ''
+
+	return res
 
 class ServerSocket:
     def __init__(self):
@@ -91,30 +108,33 @@ class ServerSocket:
     def read(self, clientSocket, mask):
         client_address = clientSocket.getpeername()
         print('Read({})'.format(client_address))
-        request = clientSocket.recv(1024).decode()
-        if request == '':
+        requests = clientSocket.recv(1024).decode()
+        if requests == '':
             return
+        print("REQ: ", requests)
 
-        if self.receiveRequestForClose(clientSocket, request) == True:
-            for name in self.nickNames:
-                if name[1] == clientSocket:
-                    for player in self.currentPlayers:
-                        if player[0] == name[0]:
-                            self.currentPlayers.remove(player)
-                    self.nickNames.remove(name)
-            self.mySel.unregister(clientSocket)
-            self.clients.remove(clientSocket)
-            clientSocket.close()
-            self.numClients -= 1
+        requestJson = readJson(requests)
+        for request in requestJson:
+            if self.receiveRequestForClose(clientSocket, request) == True:
+                for name in self.nickNames:
+                    if name[1] == clientSocket:
+                        for player in self.currentPlayers:
+                            if player[0] == name[0]:
+                                self.currentPlayers.remove(player)
+                        self.nickNames.remove(name)
+                self.mySel.unregister(clientSocket)
+                self.clients.remove(clientSocket)
+                clientSocket.close()
+                self.numClients -= 1
 
-        self.receiveRequestForName(clientSocket, request)
-        self.receiveRequestForWaitingRoom(clientSocket, request)
-        self.receiveRequestForStartGame(clientSocket, request)
-        self.receiveRequestForQuestion(clientSocket, request)
-        self.receiveRequestForRaiseQuestion(clientSocket, request)
-        self.receiveRequestForAnswer(clientSocket, request)
-        self.receiveRequestForDisqualifiedPlayer(clientSocket, request)
-        self.receiveRequestForWinner(clientSocket, request)
+            self.receiveRequestForName(clientSocket, request)
+            self.receiveRequestForWaitingRoom(clientSocket, request)
+            self.receiveRequestForStartGame(clientSocket, request)
+            self.receiveRequestForQuestion(clientSocket, request)
+            self.receiveRequestForRaiseQuestion(clientSocket, request)
+            self.receiveRequestForAnswer(clientSocket, request)
+            self.receiveRequestForDisqualifiedPlayer(clientSocket, request)
+            self.receiveRequestForWinner(clientSocket, request)
 
     def receiveRequestForClose(self, clientSocket, message):
         request = json.loads(message)
