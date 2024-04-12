@@ -29,8 +29,10 @@ def main():
         port = int(sys.argv[2])
     
     if serverIP.lower() == 'lan':
-        serverIP = get_router_ip()
-        print("LAN IP:", serverIP)
+        cur = get_router_ip()
+        print("Server LAN IP: ", cur)
+        if cur != None:
+            serverIP = cur
 
     clientSocket = client.ClientSocket()
     clientSocket.clientConnectToServer(serverIP, port)

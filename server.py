@@ -339,8 +339,11 @@ def main():
         port = int(sys.argv[2])
 
     if serverIP.lower() == 'lan':
-        serverIP = get_router_ip()
-        print("Server LAN IP: ", serverIP)
+        cur = get_router_ip()
+        print("Server LAN IP: ", cur)
+        if cur != None:
+            serverIP = cur
+            
     
     serverSocket = ServerSocket()
     serverSocket.runServerForNonBlockingSocket(serverIP, port)
