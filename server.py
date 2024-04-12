@@ -31,7 +31,8 @@ class ServerSocket:
         # In game
         self.currentPlayers = []
         self.currentPlayerIndex = 0
-        self.questions = database.questions
+        self.databaseQuestion = database.questions
+        self.questions = self.databaseQuestion
         random.shuffle(self.questions)
         self.curQuestion = 0
     
@@ -197,6 +198,10 @@ class ServerSocket:
             client = name[1]
             client.send(json.dumps(startGameJson, indent=2).encode())
             self.currentPlayers.append((name[0], index))
+        self.questions = self.databaseQuestion
+        random.shuffle(self.questions)
+        self.questions = self.questions[:50]
+        
 
     def receiveRequestForQuestion(self, clientSocket, message):
         request = json.loads(message)

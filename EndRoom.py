@@ -3,7 +3,7 @@ import pygame
 import TextClass
 import ButtonClass
 import TextButtonClass
-import MenuClass
+import WaitRoomClass
 
 class EndRoom:
 	def __init__(self, screenSize):
@@ -51,8 +51,8 @@ class EndRoom:
 			(0, 3 * self.screenHeight // 6, self.screenWidth, self.screenHeight // 8)
 		)	
 
-	def run(self, clientSocket, playerName):
-		self.winnerButton.changeTextContent(playerName)
+	def run(self, clientSocket, playerName, winnerName):
+		self.winnerButton.changeTextContent(winnerName)
 		while self.running:
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
@@ -61,6 +61,9 @@ class EndRoom:
 				
 			# Check if the start button is clicked
 			if self.quitButton.isClicked(self.gameScreen):
+				pygame.time.delay(1000)
+				waitRoom = WaitRoomClass.WaitRoom((self.screenWidth, self.screenHeight))
+				waitRoom.run(clientSocket, playerName)
 				break
 
 			# Draw Window

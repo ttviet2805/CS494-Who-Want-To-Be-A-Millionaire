@@ -190,7 +190,7 @@ class InGame:
 			if winnerResponse != None:
 				if winnerResponse['winner'] != None:
 					endRoom = EndRoom.EndRoom((self.screenWidth, self.screenHeight))
-					endRoom.run(clientSocket, winnerResponse['winner'])
+					endRoom.run(clientSocket, playerName, winnerResponse['winner'])
 					break
 			clientSocket.isReceiveResponse()
 

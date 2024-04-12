@@ -62,6 +62,7 @@ class WaitRoom:
 		self.nameText.changeTextContent(f"Name: {playerName}")
 		clientSocket.sendRequest("REQUEST", protocol.WAITING_ROOM_TYPE, playerName)
 		waitingRoomID = -1
+		clientSocket.isReceiveResponse()
 
 		while self.running:
 			for event in pygame.event.get():
