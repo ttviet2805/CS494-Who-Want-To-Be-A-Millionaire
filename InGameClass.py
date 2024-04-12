@@ -149,7 +149,11 @@ class InGame:
 				nextButtonClick = self.nextButton.isClicked(self.gameScreen)
 				if nextButtonClick == True and self.clickedNextButton == False:
 					self.clickedNextButton = True
-					clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, playerName)
+					nextData = {
+						"nickname": playerName,
+						"answer": 'Next'
+					}
+					clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, nextData)
 					pygame.time.delay(300)
 				if (self.clickedNextButton == True):
 					self.nextButton.imageID = 2
@@ -212,7 +216,7 @@ class InGame:
 				pygame.time.delay(2000)
 				raiseQuestionRequest = {
 					'nickname': playerName,
-					'answer': isAnswer
+					'answer': str(isAnswer)
 				}
 				clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, raiseQuestionRequest)
 				pygame.time.delay(300)

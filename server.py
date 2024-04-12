@@ -266,9 +266,12 @@ class ServerSocket:
         if request.get("protocol") != "REQUEST" or request["type"] != protocol.RAISE_QUESTION_TYPE:
             return
         print("Server Received: ", request["data"])
-        self.curQuestion += 1
-        if request['data']['answer'] == False:
+        if request['data']['answer'] == 'Next':
             self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(self.currentPlayers)
+        else:
+            self.curQuestion += 1
+            if request['data']['answer'] == False:
+                self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(self.currentPlayers)
         if self.curQuestion >= len(self.questions):
             return
         for name in self.nickNames:
