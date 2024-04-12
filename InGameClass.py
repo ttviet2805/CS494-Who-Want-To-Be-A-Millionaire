@@ -217,12 +217,6 @@ class InGame:
 
 			if self.currentOrder == self.myOrder and isAnswer != None:
 				pygame.time.delay(2000)
-				raiseQuestionRequest = {
-					'nickname': playerName,
-					'answer': str(isAnswer)
-				}
-				clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, raiseQuestionRequest)
-				pygame.time.delay(300)
 				clientSocket.isReceiveResponse()
 				if isAnswer == False:
 					clientSocket.sendRequest("REQUEST", protocol.DISQUALIFIED_TYPE, playerName)
@@ -231,6 +225,12 @@ class InGame:
 				clientSocket.sendRequest("REQUEST", protocol.WINNER_TYPE, playerName)
 				pygame.time.delay(300)
 				clientSocket.isReceiveResponse()
+				raiseQuestionRequest = {
+					'nickname': playerName,
+					'answer': str(isAnswer)
+				}
+				clientSocket.sendRequest("REQUEST", protocol.RAISE_QUESTION_TYPE, raiseQuestionRequest)
+				pygame.time.delay(300)
 
 	def updateQuestion(self, clientSocket):
 		questionResponse = clientSocket.receiveUIResponse(protocol.QUESTION_TYPE)
